@@ -17,24 +17,18 @@ namespace ppbox
             , util::protocol::RtspServerManager<RtspSession, RtspManager>(daemon.io_svc())
             ,addr_("0.0.0.0:554")
         {
-            
             daemon.config().register_module("RtspManager")
                 << CONFIG_PARAM_NAME_NOACC("addr",addr_ );
-
-            dispatcher_ = new RtspDispatcher(daemon);
         }
 
         RtspManager::~RtspManager()
         {
-            delete dispatcher_;
         }
 
         boost::system::error_code RtspManager::startup()
         {
-#ifndef _LIB
-            PPBOX_StartP2PEngine("12","161","08ae1acd062ea3ab65924e07717d5994");
-#endif
             boost::system::error_code ec;
+            dispatcher_ = new RtspDispatcher(get_daemon());
             start(addr_,ec);
             return ec;
         }
@@ -42,6 +36,8 @@ namespace ppbox
         void RtspManager::shutdown()
         {
             stop();
+            dispatcher_->stop();
+            delete dispatcher_;
         }
 
 
