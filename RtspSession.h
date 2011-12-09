@@ -5,6 +5,18 @@
 
 #include <util/protocol/rtsp/RtspServer.h>
 
+#include <boost/shared_ptr.hpp>
+
+namespace util
+{
+    namespace protocol
+    {
+        namespace rtsp_field
+        {
+            class Range;
+        }
+    }
+}
 
 namespace ppbox
 {
@@ -34,31 +46,10 @@ namespace ppbox
 
             virtual void on_finish();
 
-            void AsyncOpenCallback(
-                local_process_response_type const & resp,
-                boost::system::error_code const & ec
-                );
 
-            void AsyncSeekCallback(
-                local_process_response_type const & resp,
-                boost::system::error_code const & ec
-                );
-            void AsyncPlayCallback(
-                local_process_response_type const & resp,
-                boost::system::error_code const & ec
-                );
-            void AsyncPauseCallback(
-                local_process_response_type const & resp,
-                boost::system::error_code const & ec
-                );
-            void AsyncSetupCallback(
-                local_process_response_type const & resp,
-                boost::system::error_code const & ec
-                );
-
-            void AsyncTempCallback(
-                boost::system::error_code const & ec
-                );
+            void on_play(
+                boost::weak_ptr<void> const & token, 
+                boost::system::error_code const & ec);
 
 
         private:
@@ -66,14 +57,8 @@ namespace ppbox
             RtspDispatcher * dispatcher_;
             RtspManager& mgr_;
             boost::uint32_t session_id_;
-
-
-            boost::uint32_t seek_beg_;
-            boost::uint32_t seek_end_;
-            std::string rtp_info_;
-            std::string rtp_sdp_;
-            std::string rtp_setup_;
-
+            util::protocol::rtsp_field::Range range_;
+            boost::shared_ptr<void> close_token_;
         };
 
     } // namespace rtspd

@@ -15,7 +15,8 @@ namespace ppbox
             util::daemon::Daemon & daemon)
             : ppbox::common::CommonModuleBase<RtspManager>(daemon, "RtspManager")
             , util::protocol::RtspServerManager<RtspSession, RtspManager>(daemon.io_svc())
-            ,addr_("0.0.0.0:554")
+            ,addr_("0.0.0.0:5054")
+            ,dispatcher_(new RtspDispatcher(daemon))
         {
             daemon.config().register_module("RtspManager")
                 << CONFIG_PARAM_NAME_NOACC("addr",addr_ );
@@ -23,12 +24,13 @@ namespace ppbox
 
         RtspManager::~RtspManager()
         {
+            delete dispatcher_;
         }
 
         boost::system::error_code RtspManager::startup()
         {
             boost::system::error_code ec;
-            dispatcher_ = new RtspDispatcher(get_daemon());
+            dispatcher_->start();
             start(addr_,ec);
             return ec;
         }
@@ -37,7 +39,6 @@ namespace ppbox
         {
             stop();
             dispatcher_->stop();
-            delete dispatcher_;
         }
 
 

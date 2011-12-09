@@ -7,6 +7,19 @@
 
 #include <boost/asio/ip/tcp.hpp>
 
+#include <boost/asio/streambuf.hpp>
+
+namespace util
+{
+    namespace protocol
+    {
+        namespace rtsp_field
+        {
+            class Range;
+        }
+    }
+}
+
 namespace ppbox
 {
     namespace mux
@@ -32,11 +45,8 @@ namespace ppbox
 
             boost::system::error_code seek(
                 const boost::uint32_t session_id
-                ,boost::uint32_t begin
-                ,boost::uint32_t end
+                ,util::protocol::rtsp_field::Range& range
                 ,std::string& rtp_info
-                ,boost::uint32_t& seek_beg
-                ,boost::uint32_t& seek_end
                 ,ppbox::mux::session_callback_respone const &resp
                 );
 
@@ -45,7 +55,7 @@ namespace ppbox
                 std::string const & play_link,
                 std::string const & format,
                 bool need_session,
-                std::string & rtp_sdp,
+                boost::asio::streambuf& os,
                 ppbox::mux::session_callback_respone const & resp
                 );
 
@@ -60,13 +70,12 @@ namespace ppbox
         private:
             void on_seek(
                 std::string& rtp_info
-                ,boost::uint32_t& seek_beg
-                 ,boost::uint32_t& seek_end
+                ,util::protocol::rtsp_field::Range& range
                 ,ppbox::mux::session_callback_respone const &resp
                 ,boost::system::error_code ec);
 
             void on_open(
-                std::string& rtp_sdp
+                boost::asio::streambuf& os_sdp
                 ,ppbox::mux::session_callback_respone const &resp
                 ,boost::system::error_code ec);
 

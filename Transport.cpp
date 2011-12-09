@@ -18,6 +18,23 @@ namespace ppbox
 {
     namespace rtspd
     {
+        struct find_parameter
+        {
+            find_parameter(
+                std::string const & find)
+                : find_(find)
+            {
+            }
+
+            bool operator()(
+                std::string const & r)
+            {
+                return r.compare(0, find_.size(), find_) == 0;
+            }
+
+        private:
+            std::string const find_;
+        };
 
         std::pair<Transport *, Transport *> Transport::create(
             boost::asio::ip::tcp::socket & rtsp_socket, 
@@ -25,49 +42,56 @@ namespace ppbox
             std::string & out_transport, 
             error_code & ec)
         {
+            std::vector<std::string> vec_t;
+            slice<std::string>(in_transport, std::back_inserter(vec_t), ",", "", "");
             std::vector<std::string> vec;
-            slice<std::string>(in_transport, std::back_inserter(vec), ";", "{", "}");
+            slice<std::string>(vec_t[0], std::back_inserter(vec), ";");
             std::pair<Transport *, Transport *> transports;
             if (vec[0] == "RTP/AVP" || vec[0] == "RTP/AVP/UDP") {
-                for (size_t i = 1; i < vec.size(); ++i) {
-                    if (vec[i].substr(0, sizeof("client_port")) == "client_port=") {
-                        std::vector<boost::uint16_t> ports(2, 0);
-                        slice<boost::uint16_t>(vec[i], ports.begin(), "-", "client_port=");
-                        transports.first = new UdpTransport(rtsp_socket, ports[0], ports[0], ec);
+                std::vector<std::string>::iterator iter = 
+                    std::find_if(vec.begin(), vec.end(), find_parameter("client_port="));
+                if (iter != vec.end()) {
+                    std::vector<boost::uint16_t> client_ports(2, 0);
+                    std::vector<boost::uint16_t> server_ports(2, 0);
+                    slice<boost::uint16_t>(*iter, client_ports.begin(), "-", "client_port=");
+                    while (true) {
+                        transports.first = new UdpTransport(rtsp_socket, client_ports[0], server_ports[0], ec);
                         if (ec) {
                             delete transports.first;
                             transports.first = NULL;
                             break;
                         }
-                        transports.second = new UdpTransport(rtsp_socket, ports[1], ports[1], ec);
-                        if (ec) {
+                        server_ports[1] = server_ports[0] + 1;
+                        transports.second = new UdpTransport(rtsp_socket, client_ports[1], server_ports[1], ec);
+                        if (!ec) {
+                            vec.insert(++iter, join(server_ports.begin(), server_ports.end(), "-", "server_port="));
+                            break;
+                        } else if (ec != boost::asio::error::address_in_use) {
                             delete transports.first;
                             transports.first = NULL;
                             delete transports.second;
                             transports.second = NULL;
                             break;
                         }
-                        vec[i] += ";" + join(ports.begin(), ports.end(), "-", "server_port=");
                     }
                 }
             } else {
-                for (size_t i = 1; i < vec.size(); ++i) {
-                    if (vec[i].substr(0, sizeof("interleaved")) == "interleaved=") {
-                        std::vector<boost::uint16_t> ports(2, 0);
-                        slice<boost::uint16_t>(vec[i], ports.begin(), "-", "interleaved=");
-                        transports.first = new TcpTransport(rtsp_socket, ports[0], ec);
-                        if (ec) {
-                            delete transports.first;
-                            transports.first = NULL;
-                            break;
-                        }
-                        transports.second = new TcpTransport(rtsp_socket, ports[1], ec);
+                std::vector<std::string>::iterator iter = 
+                    std::find_if(vec.begin(), vec.end(), find_parameter("interleaved="));
+                if (iter != vec.end()) {
+                    std::vector<boost::uint16_t> interleaveds(2, 0);
+                    slice<boost::uint16_t>(*iter, interleaveds.begin(), "-", "interleaved=");
+                    transports.first = new TcpTransport(rtsp_socket, interleaveds[0], ec);
+                    if (ec) {
+                        delete transports.first;
+                        transports.first = NULL;
+                    } else {
+                        transports.second = new TcpTransport(rtsp_socket, interleaveds[1], ec);
                         if (ec) {
                             delete transports.first;
                             transports.first = NULL;
                             delete transports.second;
                             transports.second = NULL;
-                            break;
                         }
                     }
                 }

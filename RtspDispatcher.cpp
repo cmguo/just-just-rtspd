@@ -7,15 +7,19 @@
 #include <ppbox/mux/rtp/RtpPacket.h>
 #include <ppbox/mux/Muxer.h>
 
+#include <util/protocol/rtsp/RtspFieldRange.h>
+#include <util/protocol/rtsp/RtspError.h>
+using namespace util::protocol;
+
 #include <framework/system/LogicError.h>
 #include <framework/string/Base16.h>
-#include <boost/bind.hpp>
-#include <util/protocol/rtsp/RtspError.h>
-
+#include <framework/logger/LoggerStreamRecord.h>
+#include <framework/logger/LoggerSection.h>
 using namespace framework::system::logic_error;
 using namespace framework::logger;
+
+#include <boost/bind.hpp>
 using namespace boost::system;
-using namespace util::protocol;
 
 FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("RtspDispatcher", 0)
 
@@ -35,15 +39,15 @@ namespace ppbox
 
         boost::system::error_code RtspDispatcher::seek(
             const boost::uint32_t session_id
-            ,boost::uint32_t begin
-            ,boost::uint32_t end
+            ,util::protocol::rtsp_field::Range& range
             ,std::string & rtp_info
-            ,boost::uint32_t& seek_beg
-            ,boost::uint32_t& seek_end
             ,ppbox::mux::session_callback_respone const &resp)
         {
-            return Dispatcher::seek(session_id,begin,end,
-                boost::bind(&RtspDispatcher::on_seek,this,boost::ref(rtp_info),boost::ref(seek_beg),boost::ref(seek_end),resp,_1));
+            boost::uint32_t seek_beg = boost::uint32_t(range[0].begin() * 1000.0f);
+            boost::uint32_t seek_end = boost::uint32_t(range[0].end() * 1000.0f);
+
+            return Dispatcher::seek(session_id,seek_beg,seek_end,
+                boost::bind(&RtspDispatcher::on_seek,this,boost::ref(rtp_info),boost::ref(range),resp,_1));
         }
 
         
@@ -52,12 +56,12 @@ namespace ppbox
             std::string const & play_link,
             std::string const & format,
             bool need_session,
-            std::string & rtp_sdp,
+            boost::asio::streambuf& os,
             ppbox::mux::session_callback_respone const & resp
             )
         {
             return Dispatcher::open(session_id,play_link,format,need_session,
-                boost::bind(&RtspDispatcher::on_open,this,boost::ref(rtp_sdp),resp,_1));
+                boost::bind(&RtspDispatcher::on_open,this,boost::ref(os),resp,_1));
         }
 
         boost::system::error_code RtspDispatcher::setup(
@@ -83,8 +87,7 @@ namespace ppbox
 
         void RtspDispatcher::on_seek(
             std::string& rtp_info
-            ,boost::uint32_t& seek_beg
-            ,boost::uint32_t& seek_end
+            ,util::protocol::rtsp_field::Range& range
             ,ppbox::mux::session_callback_respone const &resp
             ,boost::system::error_code ec)
         {
@@ -97,48 +100,49 @@ namespace ppbox
             assert(NULL != cur_mov_->muxer);
             const ppbox::mux::MediaFileInfo & infoTemp = cur_mov_->muxer->mediainfo();
 
-            seek_end = infoTemp.duration;
+
+            boost::uint32_t seek_beg = 0;
+
             //组 rtp_info
             
             std::ostringstream os;
             ppbox::mux::RtpInfo* pinfo = NULL;
- 
+            
             if ("rtp-ts" == cur_mov_->format)
             {
                 pinfo = (ppbox::mux::RtpInfo*)infoTemp.attachment;
                 seek_beg = pinfo->seek_time;
 
-                os<<"url="<<cur_mov_->play_link ;
+                os<<"url=" << rtp_info;
                 os<<"/index=-1";
-                os<<";seq="<<pinfo->sequence;
+                os<<";seq=" << pinfo->sequence;
                 //timestamp = pinfo->timestamp + cur_mov_->seek*90;
-                os<<";rtptime="<<pinfo->timestamp;
+                os<<";rtptime=" << pinfo->timestamp;
             }
             else if("rtp-es" == cur_mov_->format)
             {
 
-                pinfo = 
-                    (ppbox::mux::RtpInfo*)infoTemp.stream_infos[infoTemp.video_index].attachment;
+                for(size_t ii = 0; ii < infoTemp.stream_infos.size(); ++ii)
+                {
+                    ppbox::mux::MediaInfoEx const &info = infoTemp.stream_infos[ii];
+                    pinfo =  (ppbox::mux::RtpInfo*)info.attachment;
 
-                seek_beg = pinfo->seek_time;
+                    if (info.type == ppbox::demux::MEDIA_TYPE_VIDE)
+                    {
+                        seek_beg = pinfo->seek_time;
+                    }
 
-                os<<"url="<<cur_mov_->play_link ;
-                os<<"/index="<<infoTemp.video_index;
-                os<<";seq="<<pinfo->sequence;
-                //timestamp = pinfo->timestamp + cur_mov_->seek*90;
-                os<<";rtptime="<<pinfo->timestamp;
+                    if (0 != ii)
+                    {
+                        os<<",";
+                    }
 
-                const ppbox::demux::MediaInfo& info = infoTemp.stream_infos[infoTemp.audio_index];
-                pinfo = 
-                    (ppbox::mux::RtpInfo*)info.attachment;
-
-                os<<",url="<<cur_mov_->play_link ;
-                os<<"/index="<<infoTemp.audio_index;
-                os<<";seq="<<pinfo->sequence;
+                    os<<"url=" << rtp_info;
+                    os<<"/index=" << ii;
+                    os<<";seq=" << pinfo->sequence;
+                    os<<";rtptime=" << pinfo->timestamp;
+                }
                 
-                //timestamp = pinfo->timestamp + 
-                 //   cur_mov_->seek * info.audio_format.sample_rate / 1000;
-                os<<";rtptime="<<pinfo->timestamp;
             }
             else
             {
@@ -146,13 +150,36 @@ namespace ppbox
                 assert(0);
             }
 
+            
+            //填充Range值
+            float be = (float)(seek_beg/1000.0);;
+            float en = range[0].end();
+
+			if( !range[0].has_end() )
+	        {
+	             if(0 < infoTemp.duration )
+	             {
+	                  en = (float)(infoTemp.duration/1000.0);
+	                  range[0] = rtsp_field::Range::Unit(be,en); 
+	             }
+	             else
+	             {
+	                  range[0] = rtsp_field::Range::Unit(be, be - 1.0);
+	             }
+	        }
+	        else
+	        {
+	             range[0] = rtsp_field::Range::Unit(be,en);
+	        }
+
+            //填充Rtp_info值
             rtp_info = os.str();
             resp(ec);
             
         }
 
         void RtspDispatcher::on_open(
-            std::string & rtp_sdp
+            boost::asio::streambuf& os_sdp
             ,ppbox::mux::session_callback_respone const &resp
             ,boost::system::error_code ec)
         {
@@ -161,18 +188,26 @@ namespace ppbox
                 resp(ec);
                 return;
             }
+            std::ostream os(&os_sdp);
+
             assert(NULL != cur_mov_);
             assert(NULL != cur_mov_->muxer);
             const ppbox::mux::MediaFileInfo & infoTemp = cur_mov_->muxer->mediainfo();
 
-            std::ostringstream os;
             //组sdp
             os <<  "v=0\r\n";
             os << "o=PPBOX " << " 3523770323 1314781361000 IN IP4 0.0.0.0\r\n";
             os << "s=" << cur_mov_->play_link << "\r\n";
             os << "c=IN IP4 " << "0.0.0.0" << "\r\n";
             os << "t=0 0\r\n";
-            os << "a=range:npt=0.000-" << (float)infoTemp.duration/1000.0<< "\r\n";
+            if(0 == infoTemp.duration)
+		    {
+		        os << "a=range:npt=0.000-\r\n";
+		    }
+		    else
+		    {
+		        os << "a=range:npt=0.000-" << (float)infoTemp.duration/1000.0<< "\r\n";
+		    }
             os << "a=control:*" << "\r\n";
             
             ppbox::mux::RtpInfo* pinfo = NULL;
@@ -197,7 +232,6 @@ namespace ppbox
                 LOG_S(Logger::kLevelError, "[on_open] Wrong Fromat");
                 assert(0);
             }
-            rtp_sdp = os.str();
             resp(ec);
         }
 
@@ -243,13 +277,10 @@ namespace ppbox
                 assert(0);
             }
             
-            std::string str_ssrc = "{";
-            str_ssrc += rtp_info;
+            std::string str_ssrc = rtp_info;
             str_ssrc +=  ";ssrc=";
             str_ssrc += framework::string::Base16::encode(std::string((char const *)&iSsrc, 4));
-            str_ssrc +=  "}";
             rtp_info = str_ssrc;
-
             resp(ec);
         }
     } // namespace rtspd
