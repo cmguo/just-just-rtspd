@@ -58,20 +58,20 @@ namespace ppbox
                 case RtspRequestHead::describe:
                     {
                         std::string tmphost = "http://host";
-                         std::string url_profix = "base64";
-                         framework::string::Url url(request().head().path);
-                         std::string url_path(url.path_all());
+                        std::string url_profix = "base64";
+                        framework::string::Url url(request().head().path);
+                        std::string url_path(url.path_all());
 
-                         //防止一些播放器不支持 playlink带参数的方式
-                         if (url_path.compare(1, url_profix.size(), url_profix) == 0) {
-                             url_path = url_path.substr(url_profix.size()+1, url_path.size() - url_profix.size()+1);
-                             url_path = Base64::decode(url_path);
-                             url_path = std::string("/") + url_path;
-                         }
+                        //防止一些播放器不支持 playlink带参数的方式
+                        if (url_path.compare(1, url_profix.size(), url_profix) == 0) {
+                            url_path = url_path.substr(url_profix.size()+1, url_path.size() - url_profix.size()+1);
+                            url_path = Base64::decode(url_path);
+                            url_path = std::string("/") + url_path;
+                        }
 
-                         tmphost += url_path;
-                         framework::string::Url request_url(tmphost);
-                         request_url.decode();
+                        tmphost += url_path;
+                        framework::string::Url request_url(tmphost);
+                        request_url.decode();
 
                         path_ = request_url.param_or("playlink");
 
@@ -201,10 +201,10 @@ namespace ppbox
             boost::weak_ptr<void> const & token, 
             boost::system::error_code const & ec)
         {
-            LOG_S(Logger::kLevelEvent, "[on_play] session_id:"<<session_id_<<" ec:"<<ec.message());
-
             if (token.expired())
                 return;
+
+            LOG_S(Logger::kLevelEvent, "[on_play] session_id:"<<session_id_<<" ec:"<<ec.message());
 
             if(boost::asio::error::operation_aborted == ec)
             {

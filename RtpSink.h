@@ -34,9 +34,12 @@ namespace ppbox
                 std::string & output);
 
         private:
-            virtual boost::system::error_code write(ppbox::demux::Sample&);
+            virtual boost::system::error_code write(
+                boost::posix_time::ptime const & time_send, 
+                ppbox::demux::Sample&);
 
             void send_rtcp(
+                boost::posix_time::ptime const & time_send, 
                 ppbox::mux::RtpPacket const & rtp);
 
         private:

@@ -9,17 +9,18 @@
 
 #include <util/protocol/rtsp/RtspFieldRange.h>
 #include <util/protocol/rtsp/RtspError.h>
-using namespace util::protocol;
 
 #include <framework/system/LogicError.h>
 #include <framework/string/Base16.h>
-#include <framework/logger/LoggerStreamRecord.h>
-#include <framework/logger/LoggerSection.h>
-using namespace framework::system::logic_error;
-using namespace framework::logger;
 
 #include <boost/bind.hpp>
+
+#include <fstream>
+
+using namespace framework::system::logic_error;
+using namespace framework::logger;
 using namespace boost::system;
+using namespace util::protocol;
 
 FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("RtspDispatcher", 0)
 
@@ -121,7 +122,6 @@ namespace ppbox
             }
             else if("rtp-es" == cur_mov_->format)
             {
-
                 for(size_t ii = 0; ii < infoTemp.stream_infos.size(); ++ii)
                 {
                     ppbox::mux::MediaInfoEx const &info = infoTemp.stream_infos[ii];
@@ -196,19 +196,22 @@ namespace ppbox
 
             //×ésdp
             os <<  "v=0\r\n";
-            os << "o=PPBOX " << " 3523770323 1314781361000 IN IP4 0.0.0.0\r\n";
-            os << "s=" << cur_mov_->play_link << "\r\n";
-            os << "c=IN IP4 " << "0.0.0.0" << "\r\n";
+            os << "o=- 1322720027229880 1 IN IP4 192.168.1.100\r\n";
+            os << "s=Session streamed by PPBOX\r\n";
+            os << "i=" << cur_mov_->play_link << "\r\n";
+            //os << "c=IN IP4 " << "0.0.0.0" << "\r\n";
             os << "t=0 0\r\n";
             if(0 == infoTemp.duration)
-		    {
-		        os << "a=range:npt=0.000-\r\n";
-		    }
-		    else
-		    {
-		        os << "a=range:npt=0.000-" << (float)infoTemp.duration/1000.0<< "\r\n";
-		    }
+            {
+                os << "a=type:broadcast\r\n";
+                os << "a=range:npt=now-\r\n";
+            }
+            else
+            {
+                os << "a=range:npt=0.000-" << (float)infoTemp.duration/1000.0<< "\r\n";
+            }
             os << "a=control:*" << "\r\n";
+            os << "c=IN IP4 " << "0.0.0.0" << "\r\n";
             
             ppbox::mux::RtpInfo* pinfo = NULL;
 
@@ -232,6 +235,7 @@ namespace ppbox
                 LOG_S(Logger::kLevelError, "[on_open] Wrong Fromat");
                 assert(0);
             }
+
             resp(ec);
         }
 

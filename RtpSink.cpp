@@ -19,6 +19,7 @@ namespace ppbox
             : num_pkt_(0)
             , num_byte_(0)
         {
+            next_rtcp_time_ -= framework::timer::Duration::seconds(4);
         }
 
         RtpSink::~RtpSink()
@@ -30,27 +31,28 @@ namespace ppbox
         }
 
         //工作线程调用
-        boost::system::error_code RtpSink::write( ppbox::demux::Sample& tag)
+        boost::system::error_code RtpSink::write(
+            boost::posix_time::ptime const & time_send, 
+            ppbox::demux::Sample& tag)
         {
+            assert(tag.context);
             boost::system::error_code ec;
-            ppbox::mux::RtpSplitContent * packet = (ppbox::mux::RtpSplitContent*)tag.context;
-            if(NULL == packet)
+            ppbox::mux::RtpSplitContent & packets = *(ppbox::mux::RtpSplitContent *)tag.context;
+            for (size_t ii = 0; ii < packets.size(); ++ii)
             {
-                return ec;
-            }
-            for (size_t ii = 0; ii < packet->packets.size(); ++ii)
-            {
-               ec =  transports_.first->send_packet(packet->packets[ii].buffers);
+               ec =  transports_.first->send_packet(packets[ii].buffers);
                if(ec)
                {
                    std::cout<<" write failed "<<std::endl;
                    break;
                }
                ++num_pkt_;
-               num_byte_ += packet->packets[ii].size;
+               num_byte_ += packets[ii].size;
                framework::timer::Time now;
                if (next_rtcp_time_ < now) {
-                   send_rtcp(packet->packets[ii]);
+                   boost::posix_time::ptime time_play = 
+                       time_send + boost::posix_time::microseconds(packets.ustime - tag.ustime);
+                   send_rtcp(time_play, packets[ii]);
                    next_rtcp_time_ = now + framework::timer::Duration::seconds(3);
                }
             }
@@ -88,6 +90,7 @@ namespace ppbox
         };
 
         void RtpSink::send_rtcp(
+            boost::posix_time::ptime const & time_send, 
             ppbox::mux::RtpPacket const & rtp)
         {
             size_t length = sizeof(RtcpHead) + sizeof(RtcpSR) 
@@ -102,8 +105,7 @@ namespace ppbox
             RtcpSR * sr = (RtcpSR *)(head + 1);
             sr->ssrc = rtp.ssrc;
             boost::posix_time::ptime t1900(boost::gregorian::date(1900, 1, 1));
-            boost::posix_time::time_duration time_since_1900 = 
-                boost::posix_time::microsec_clock::universal_time() - t1900;
+            boost::posix_time::time_duration time_since_1900 = time_send - t1900;
             boost::uint32_t ntp_sec = time_since_1900.total_seconds();
             boost::uint32_t ntp_frac = (time_since_1900 - boost::posix_time::seconds(ntp_sec)).total_microseconds();
             ntp_frac = (boost::uint32_t)((boost::uint64_t)ntp_frac << 32 / 1000000);
