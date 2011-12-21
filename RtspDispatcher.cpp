@@ -9,18 +9,18 @@
 
 #include <util/protocol/rtsp/RtspFieldRange.h>
 #include <util/protocol/rtsp/RtspError.h>
+using namespace util::protocol;
 
 #include <framework/system/LogicError.h>
 #include <framework/string/Base16.h>
+#include <framework/logger/LoggerStreamRecord.h>
+using namespace framework::logger;
+using namespace framework::system::logic_error;
 
 #include <boost/bind.hpp>
+using namespace boost::system;
 
 #include <fstream>
-
-using namespace framework::system::logic_error;
-using namespace framework::logger;
-using namespace boost::system;
-using namespace util::protocol;
 
 FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("RtspDispatcher", 0)
 

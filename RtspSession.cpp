@@ -8,13 +8,11 @@
 #include <util/protocol/rtsp/RtspRequest.h>
 #include <util/protocol/rtsp/RtspResponse.h>
 #include <util/protocol/rtsp/RtspError.h>
-#include <framework/string/Base64.h>
 using namespace util::protocol;
 
-
-
-#include <framework/logger/LoggerFormatRecord.h>
 #include <framework/string/Url.h>
+#include <framework/logger/LoggerStreamRecord.h>
+#include <framework/string/Base64.h>
 using namespace framework::logger;
 using namespace framework::string;
 

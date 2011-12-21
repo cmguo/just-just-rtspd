@@ -7,7 +7,6 @@
 
 #include <framework/system/BytesOrder.h>
 #include <framework/string/Base16.h>
-
 #include <framework/string/Slice.h>
 #include <framework/string/Join.h>
 using namespace framework::string;
