@@ -58,11 +58,12 @@ namespace ppbox
             std::string const & format,
             bool need_session,
             boost::asio::streambuf& os,
+            boost::uint32_t clientType,
             ppbox::mux::session_callback_respone const & resp
             )
         {
             return Dispatcher::open(session_id,play_link,format,need_session,
-                boost::bind(&RtspDispatcher::on_open,this,boost::ref(os),resp,_1));
+                boost::bind(&RtspDispatcher::on_open,this,boost::ref(os),clientType,resp,_1));
         }
 
         boost::system::error_code RtspDispatcher::setup(
@@ -180,6 +181,7 @@ namespace ppbox
 
         void RtspDispatcher::on_open(
             boost::asio::streambuf& os_sdp
+            ,boost::uint32_t clientType
             ,ppbox::mux::session_callback_respone const &resp
             ,boost::system::error_code ec)
         {
@@ -188,6 +190,11 @@ namespace ppbox
                 resp(ec);
                 return;
             }
+            
+            //写入手机类型
+            cur_mov_->muxer->Config().set("RtpESVideo","usedts",(clientType==0?"0":"1"));
+
+
             std::ostream os(&os_sdp);
 
             assert(NULL != cur_mov_);

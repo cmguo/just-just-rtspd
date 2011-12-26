@@ -56,6 +56,7 @@ namespace ppbox
                 std::string const & format,
                 bool need_session,
                 boost::asio::streambuf& os,
+                boost::uint32_t clientType,
                 ppbox::mux::session_callback_respone const & resp
                 );
 
@@ -76,6 +77,7 @@ namespace ppbox
 
             void on_open(
                 boost::asio::streambuf& os_sdp
+                ,boost::uint32_t clientType
                 ,ppbox::mux::session_callback_respone const &resp
                 ,boost::system::error_code ec);
 

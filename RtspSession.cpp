@@ -59,6 +59,7 @@ namespace ppbox
                         std::string url_profix = "base64";
                         framework::string::Url url(request().head().path);
                         std::string url_path(url.path_all());
+                        std::string useAgent = request().head()["User-Agent"];
 
                         //防止一些播放器不支持 playlink带参数的方式
                         if (url_path.compare(1, url_profix.size(), url_profix) == 0) {
@@ -107,6 +108,7 @@ namespace ppbox
                         }
 
                         ec = dispatcher_->open(session_id_,path_,format,true,response().data(),
+                            useAgent.find("Samsung") == std::string::npos?0:1,
                             get_io_service().wrap(resp));
 
                         if(ec)
