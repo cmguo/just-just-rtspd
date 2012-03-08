@@ -131,6 +131,7 @@ namespace ppbox
             rtcp_buf_.commit(length);
             std::vector<boost::asio::const_buffer> vec(1, rtcp_buf_.data());
             transports_.second->send_packet(vec);
+            rtcp_buf_.consume(length);
         }
 
         //下面为主线程调用

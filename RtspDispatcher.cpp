@@ -4,8 +4,7 @@
 #include "ppbox/rtspd/RtspDispatcher.h"
 #include "ppbox/rtspd/RtpSink.h"
 
-#include <ppbox/mux/rtp/RtpPacket.h>
-#include <ppbox/mux/Muxer.h>
+#include <ppbox/mux/rtp/RtpMux.h>
 
 #include <util/protocol/rtsp/RtspFieldRange.h>
 #include <util/protocol/rtsp/RtspError.h>
@@ -45,7 +44,7 @@ namespace ppbox
             ,ppbox::mux::session_callback_respone const &resp)
         {
             boost::uint32_t seek_beg = boost::uint32_t(range[0].begin() * 1000.0f);
-            boost::uint32_t seek_end = boost::uint32_t(range[0].end() * 1000.0f);
+            boost::uint32_t seek_end = range[0].has_end() ? boost::uint32_t(range[0].end() * 1000.0f) : (boost::uint32_t)-1;
 
             return Dispatcher::seek(session_id,seek_beg,seek_end,
                 boost::bind(&RtspDispatcher::on_seek,this,boost::ref(rtp_info),boost::ref(range),resp,_1));
@@ -106,77 +105,31 @@ namespace ppbox
             boost::uint32_t seek_beg = 0;
 
             //组 rtp_info
-            
-            std::ostringstream os;
-            ppbox::mux::RtpInfo* pinfo = NULL;
-            
-            if ("rtp-ts" == cur_mov_->format)
-            {
-                pinfo = (ppbox::mux::RtpInfo*)infoTemp.attachment;
-                seek_beg = pinfo->seek_time;
-
-                os<<"url=" << rtp_info;
-                os<<"/index=-1";
-                os<<";seq=" << pinfo->sequence;
-                //timestamp = pinfo->timestamp + cur_mov_->seek*90;
-                os<<";rtptime=" << pinfo->timestamp;
-            }
-            else if("rtp-es" == cur_mov_->format)
-            {
-                for(size_t ii = 0; ii < infoTemp.stream_infos.size(); ++ii)
-                {
-                    ppbox::mux::MediaInfoEx const &info = infoTemp.stream_infos[ii];
-                    pinfo =  (ppbox::mux::RtpInfo*)info.attachment;
-
-                    if (info.type == ppbox::demux::MEDIA_TYPE_VIDE)
-                    {
-                        seek_beg = pinfo->seek_time;
-                    }
-
-                    if (0 != ii)
-                    {
-                        os<<",";
-                    }
-
-                    os<<"url=" << rtp_info;
-                    os<<"/index=" << ii;
-                    os<<";seq=" << pinfo->sequence;
-                    os<<";rtptime=" << pinfo->timestamp;
-                }
-                
-            }
-            else
-            {
-                LOG_S(Logger::kLevelError, "[on_play] Wrong Fromat");
-                assert(0);
-            }
-
+            ((ppbox::mux::RtpMux *)cur_mov_->muxer)->get_rtp_info(rtp_info, ec);
+            assert(!ec);
             
             //填充Range值
             float be = (float)(seek_beg/1000.0);;
             float en = range[0].end();
 
-			if( !range[0].has_end() )
-	        {
-	             if(0 < infoTemp.duration )
-	             {
-	                  en = (float)(infoTemp.duration/1000.0);
-	                  range[0] = rtsp_field::Range::Unit(be,en); 
-	             }
-	             else
-	             {
-	                  range[0] = rtsp_field::Range::Unit(be, be - 1.0);
-	             }
-	        }
-	        else
-	        {
-	             range[0] = rtsp_field::Range::Unit(be,en);
-	        }
+            if( !range[0].has_end() )
+            {
+                if(0 < infoTemp.duration )
+                {
+                    en = (float)(infoTemp.duration/1000.0);
+                    range[0] = rtsp_field::Range::Unit(be,en); 
+                }
+                else
+                {
+                    range[0] = rtsp_field::Range::Unit(be, be - 1.0);
+                }
+            }
+            else
+            {
+                range[0] = rtsp_field::Range::Unit(be,en);
+            }
 
-            //填充Rtp_info值
-            rtp_info = os.str();
             resp(ec);
-            
         }
 
         void RtspDispatcher::on_open(
@@ -192,7 +145,7 @@ namespace ppbox
             }
             
             //写入手机类型
-            cur_mov_->muxer->Config().set("RtpESVideo","usedts",(clientType==0?"0":"1"));
+            cur_mov_->muxer->config().set("RtpESVideo","usedts",(clientType==0?"0":"1"));
 
 
             std::ostream os(&os_sdp);
@@ -220,28 +173,10 @@ namespace ppbox
             os << "a=control:*" << "\r\n";
             os << "c=IN IP4 " << "0.0.0.0" << "\r\n";
             
-            ppbox::mux::RtpInfo* pinfo = NULL;
-
-            if ("rtp-ts" == cur_mov_->format)
-            {
-                pinfo = (ppbox::mux::RtpInfo*)infoTemp.attachment;
-                os << pinfo->sdp;
-            }
-            else if("rtp-es" == cur_mov_->format)
-            {
-                //infoTemp.stream_infos[infoTemp.video_index].attachment;
-                for(size_t ii = 0; ii < infoTemp.stream_infos.size(); ++ii )
-                {
-                    pinfo = (ppbox::mux::RtpInfo*)infoTemp.stream_infos[ii].attachment;
-                    os << pinfo->sdp;
-                }
-                
-            }
-            else
-            {
-                LOG_S(Logger::kLevelError, "[on_open] Wrong Fromat");
-                assert(0);
-            }
+            std::string sdp;
+            ((ppbox::mux::RtpMux *)cur_mov_->muxer)->get_sdp(sdp, ec);
+            assert(!ec);
+            os << sdp;
 
             resp(ec);
         }
@@ -252,46 +187,16 @@ namespace ppbox
             ppbox::mux::session_callback_respone const &resp,
             boost::system::error_code ec)
         {
-
-            //boost::system::error_code ec;
-
             assert(NULL != cur_mov_);
             assert(NULL != cur_mov_->muxer);
-            const ppbox::mux::MediaFileInfo & infoTemp = cur_mov_->muxer->mediainfo();
             
-            boost::uint32_t iSsrc = 0;
-            //组 rtp_info
+            //组 ssrc
+            std::string str_ssrc;
+            ((ppbox::mux::RtpMux *)cur_mov_->muxer)->setup(index, str_ssrc, ec);
+            assert(!ec);
+            rtp_info += ";";
+            rtp_info += str_ssrc;
 
-            std::ostringstream os;
-
-            if ("rtp-ts" == cur_mov_->format)
-            {
-                ppbox::mux::RtpInfo* pinfo = (ppbox::mux::RtpInfo*)infoTemp.attachment;
-                iSsrc = pinfo->ssrc;
-
-            }
-            else if("rtp-es" == cur_mov_->format)
-            {
-                if(index < infoTemp.stream_infos.size())
-                {
-                    ppbox::mux::RtpInfo* pinfo = 
-                        (ppbox::mux::RtpInfo*)infoTemp.stream_infos[index].attachment;
-                    iSsrc = pinfo->ssrc;
-                }
-                else
-                {
-                    assert(0);
-                }
-            }
-            else
-            {
-                assert(0);
-            }
-            
-            std::string str_ssrc = rtp_info;
-            str_ssrc +=  ";ssrc=";
-            str_ssrc += framework::string::Base16::encode(std::string((char const *)&iSsrc, 4));
-            rtp_info = str_ssrc;
             resp(ec);
         }
     } // namespace rtspd
