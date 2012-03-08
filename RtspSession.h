@@ -59,6 +59,7 @@ namespace ppbox
             boost::uint32_t session_id_;
             util::protocol::rtsp_field::Range range_;
             boost::shared_ptr<void> close_token_;
+			bool rtp_info_send_;
         };
 
     } // namespace rtspd

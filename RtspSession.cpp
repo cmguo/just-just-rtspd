@@ -30,6 +30,7 @@ namespace ppbox
         {   
             dispatcher_ = mgr.dispatcher();
             session_id_ = 0;
+			rtp_info_send_ = false;
         }
 
         RtspSession::~RtspSession()
@@ -70,7 +71,7 @@ namespace ppbox
 
                         tmphost += url_path;
                         framework::string::Url request_url(tmphost);
-                        request_url.decode();
+                        //request_url.decode();
 
                         path_ = request_url.param_or("playlink");
 
@@ -83,6 +84,8 @@ namespace ppbox
                             type_ = type_ +"://";
                             path_ = type_ + path_;
                         }
+                        path_ = framework::string::Url::decode(path_);
+
                         std::string format = request_url.param_or("format");
 
                         if(format.empty())
@@ -149,14 +152,20 @@ namespace ppbox
                     break;
                 case RtspRequestHead::play:
                     {
-                        if (!request().head().range.is_initialized())
+                        if (!request().head().range.is_initialized() && rtp_info_send_)
                         {
                             break;
                         }
                         else
                         {
-                            response().head().rtp_info = request().head().path;
-                            response().head().range =  request().head().range;
+							rtp_info_send_ = true;
+                            
+							response().head().rtp_info = request().head().path;
+                            
+							if (request().head().range.is_initialized())
+								response().head().range =  request().head().range;
+							else
+								response().head().range = util::protocol::rtsp_field::Range(0);
 
                             dispatcher_->seek(session_id_,
                                 response().head().range.get(),
@@ -182,6 +191,12 @@ namespace ppbox
                         ec = dispatcher_->close(session_id_);
                         response().head()["Session"] = "{" + format(session_id_) + "}";
                         session_id_ = 0;
+                    }   
+                    break;
+                case RtspRequestHead::set_parameter:
+                case RtspRequestHead::get_parameter:    
+                    {
+                        ec.clear();
                     }   
                     break;
                 default:
