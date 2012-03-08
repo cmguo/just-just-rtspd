@@ -31,14 +31,15 @@ namespace ppbox
             std::vector<boost::asio::const_buffer> const & buffers)
         {
             size_t len = util::buffers::buffer_size(buffers);
-            boost::uint8_t head[3] = {
+            boost::uint8_t head[4] = {
+                (boost::uint8_t)'$', 
                 (boost::uint8_t)interleave_, 
                 (boost::uint8_t)(len >> 8), 
                 (boost::uint8_t)(len & 0xff), 
             };
             error_code ec;
             std::vector<boost::asio::const_buffer> buffers2(
-                1, boost::asio::const_buffer(head, 3));
+                1, boost::asio::buffer(head, 4));
             buffers2.insert(buffers2.end(), buffers.begin(), buffers.end());
             boost::asio::write(socket_, buffers2, boost::asio::transfer_all(), ec);
             return ec;

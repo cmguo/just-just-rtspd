@@ -15,9 +15,11 @@ namespace ppbox
 {
     namespace rtspd
     {
-        RtpSink::RtpSink()
+        RtpSink::RtpSink(
+            bool with_rtcp)
             : num_pkt_(0)
             , num_byte_(0)
+            , with_rtcp_(with_rtcp)
         {
             next_rtcp_time_ -= framework::timer::Duration::seconds(4);
         }
@@ -41,15 +43,13 @@ namespace ppbox
             for (size_t ii = 0; ii < packets.size(); ++ii)
             {
                ec =  transports_.first->send_packet(packets[ii].buffers);
-               if(ec)
-               {
-                   std::cout<<" write failed "<<std::endl;
+               if (ec) {
                    break;
                }
                ++num_pkt_;
                num_byte_ += packets[ii].size;
                framework::timer::Time now;
-               if (next_rtcp_time_ < now) {
+               if (with_rtcp_ && next_rtcp_time_ < now) {
                    boost::posix_time::ptime time_play = 
                        time_send + boost::posix_time::microseconds(packets.ustime - tag.ustime);
                    send_rtcp(time_play, packets[ii]);

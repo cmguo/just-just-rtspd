@@ -43,10 +43,10 @@ namespace ppbox
             ,std::string & rtp_info
             ,ppbox::mux::session_callback_respone const &resp)
         {
-            boost::uint32_t seek_beg = boost::uint32_t(range[0].begin() * 1000.0f);
+            boost::uint32_t seek_time = boost::uint32_t(range[0].begin() * 1000.0f);
             boost::uint32_t seek_end = range[0].has_end() ? boost::uint32_t(range[0].end() * 1000.0f) : (boost::uint32_t)-1;
 
-            return Dispatcher::seek(session_id,seek_beg,seek_end,
+            return Dispatcher::seek(session_id,seek_time,seek_end,
                 boost::bind(&RtspDispatcher::on_seek,this,boost::ref(rtp_info),boost::ref(range),resp,_1));
         }
 
@@ -102,14 +102,14 @@ namespace ppbox
             const ppbox::mux::MediaFileInfo & infoTemp = cur_mov_->muxer->mediainfo();
 
 
-            boost::uint32_t seek_beg = 0;
+            boost::uint32_t seek_time = 0;
 
             //×é rtp_info
-            ((ppbox::mux::RtpMux *)cur_mov_->muxer)->get_rtp_info(rtp_info, ec);
+            ((ppbox::mux::RtpMux *)cur_mov_->muxer)->get_rtp_info(rtp_info, seek_time, ec);
             assert(!ec);
             
             //Ìî³äRangeÖµ
-            float be = (float)(seek_beg/1000.0);;
+            float be = (float)(seek_time/1000.0);
             float en = range[0].end();
 
             if( !range[0].has_end() )

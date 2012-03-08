@@ -24,7 +24,9 @@ namespace ppbox
             : public ppbox::mux::Sink
         {
         public:
-            RtpSink();
+            RtpSink(
+                bool with_rtcp = true);
+
             virtual ~RtpSink();
 
         public:
@@ -44,9 +46,10 @@ namespace ppbox
 
         private:
             std::pair<Transport *, Transport *> transports_;
-            boost::asio::streambuf rtcp_buf_;
             boost::uint32_t num_pkt_;
             boost::uint64_t num_byte_;
+            bool with_rtcp_;
+            boost::asio::streambuf rtcp_buf_;
             framework::timer::Time next_rtcp_time_;
         };
 
