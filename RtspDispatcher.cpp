@@ -114,9 +114,9 @@ namespace ppbox
 
             if( !range[0].has_end() )
             {
-                if(0 < infoTemp.duration )
+                if(0 < infoTemp.duration_info.total )
                 {
-                    en = (float)(infoTemp.duration/1000.0);
+                    en = (float)(infoTemp.duration_info.total/1000.0);
                     range[0] = rtsp_field::Range::Unit(be,en); 
                 }
                 else
@@ -161,14 +161,14 @@ namespace ppbox
             os << "i=" << cur_mov_->play_link << "\r\n";
             //os << "c=IN IP4 " << "0.0.0.0" << "\r\n";
             os << "t=0 0\r\n";
-            if(0 == infoTemp.duration)
+            if(0 == infoTemp.duration_info.total)
             {
                 os << "a=type:broadcast\r\n";
                 os << "a=range:npt=now-\r\n";
             }
             else
             {
-                os << "a=range:npt=0.000-" << (float)infoTemp.duration/1000.0<< "\r\n";
+                os << "a=range:npt=0.000-" << (float)infoTemp.duration_info.total/1000.0<< "\r\n";
             }
             os << "a=control:*" << "\r\n";
             os << "c=IN IP4 " << "0.0.0.0" << "\r\n";
