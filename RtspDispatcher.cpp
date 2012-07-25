@@ -14,6 +14,7 @@ using namespace util::protocol;
 #include <framework/string/Base16.h>
 #include <framework/logger/LoggerStreamRecord.h>
 using namespace framework::logger;
+using namespace framework::string;
 using namespace framework::system::logic_error;
 
 #include <boost/bind.hpp>

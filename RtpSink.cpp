@@ -33,12 +33,12 @@ namespace ppbox
         }
 
         //工作线程调用
-        boost::system::error_code RtpSink::write(
+        size_t RtpSink::write(
             boost::posix_time::ptime const & time_send, 
-            ppbox::demux::Sample& tag)
+            ppbox::demux::Sample& tag,
+            boost::system::error_code& ec)
         {
             assert(tag.context);
-            boost::system::error_code ec;
             ppbox::mux::RtpSplitContent & packets = *(ppbox::mux::RtpSplitContent *)tag.context;
             for (size_t ii = 0; ii < packets.size(); ++ii)
             {
@@ -56,7 +56,7 @@ namespace ppbox
                    next_rtcp_time_ = now + framework::timer::Duration::seconds(3);
                }
             }
-            return ec;
+            return 0;
         }
 
         struct RtcpHead
