@@ -3,7 +3,7 @@
 #include "ppbox/rtspd/Common.h"
 #include "ppbox/rtspd/TcpTransport.h"
 
-#include <util/buffers/BufferSize.h>
+#include <util/buffers/BuffersSize.h>
 
 #include <boost/asio/write.hpp>
 using namespace boost::system;
@@ -30,7 +30,7 @@ namespace ppbox
         error_code TcpTransport::send_packet(
             std::vector<boost::asio::const_buffer> const & buffers)
         {
-            size_t len = util::buffers::buffer_size(buffers);
+            size_t len = util::buffers::buffers_size(buffers);
             boost::uint8_t head[4] = {
                 (boost::uint8_t)'$', 
                 (boost::uint8_t)interleave_, 
