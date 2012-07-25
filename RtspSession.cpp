@@ -126,7 +126,7 @@ namespace ppbox
                         Url url(request().head().path);
                         
                         std::string myurl = url.to_string();
-                        int t = myurl.find("/index=");
+                        int t = myurl.find("/track");
                         if(t < 0 )
                         {
                             ec = rtsp_error::bad_request;

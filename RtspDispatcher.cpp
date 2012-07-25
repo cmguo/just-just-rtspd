@@ -73,7 +73,7 @@ namespace ppbox
             std::string & rtp_setup,
             ppbox::mux::session_callback_respone const & resp)
         {
-            std::string stream_index_str = control.substr(sizeof("index=") - 1,2);
+            std::string stream_index_str = control.substr(sizeof("track") - 1,2);
             size_t stream_index = -1;
             parse2<size_t>(stream_index_str, stream_index);
             

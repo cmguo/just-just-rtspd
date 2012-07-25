@@ -19,7 +19,7 @@ namespace ppbox
             ,dispatcher_(new RtspDispatcher(daemon))
         {
             daemon.config().register_module("RtspManager")
-                << CONFIG_PARAM_NAME_NOACC("addr",addr_ );
+                << CONFIG_PARAM_NAME_RDWR("addr",addr_ );
         }
 
         RtspManager::~RtspManager()
