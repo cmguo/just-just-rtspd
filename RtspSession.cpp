@@ -81,13 +81,12 @@ namespace ppbox
                         std::string type_ = request_url.param_or("type");
                         if (!type_.empty())
                         {
-                            type_ = type_ +"://";
+                            type_ = type_ +":///";
                             path_ = type_ + path_;
                         }
                         path_ = framework::string::Url::decode(path_);
 
                         std::string format = request_url.param_or("format");
-
                         if(format.empty())
                         {//取后缀作为格式
                             if (request_url.path().size() > 1) 
@@ -111,7 +110,8 @@ namespace ppbox
                         }
 
                         ec = dispatcher_->open(session_id_,path_,format,true,response().data(),
-                            useAgent.find("Samsung") == std::string::npos?0:1,
+                            (useAgent.find("Samsung") != std::string::npos
+                            || useAgent.find("NexPlayer") != std::string::npos)?1:0,
                             get_io_service().wrap(resp));
 
                         if(ec)
