@@ -12,7 +12,7 @@ using namespace util::protocol;
 
 #include <framework/system/LogicError.h>
 #include <framework/string/Base16.h>
-#include <framework/logger/LoggerStreamRecord.h>
+#include <framework/logger/StreamRecord.h>
 using namespace framework::logger;
 using namespace framework::string;
 using namespace framework::system::logic_error;

@@ -11,7 +11,7 @@
 using namespace util::protocol;
 
 #include <framework/string/Url.h>
-#include <framework/logger/LoggerStreamRecord.h>
+#include <framework/logger/StreamRecord.h>
 #include <framework/string/Base64.h>
 using namespace framework::logger;
 using namespace framework::string;
@@ -47,7 +47,7 @@ namespace ppbox
             
             boost::system::error_code ec;
 
-            LOG_S(Logger::kLevelDebug,"[local_process] session_id:"<<session_id_<<" request:"<<request().head().path);
+            LOG_DEBUG("[local_process] session_id:"<<session_id_<<" request:"<<request().head().path);
             request().head().get_content(std::cout);
 
             switch (request().head().method) {
@@ -208,7 +208,7 @@ namespace ppbox
         void RtspSession::on_error(
             error_code const & ec)
         {
-            LOG_S(Logger::kLevelEvent, "[on_error] session_id:"<<session_id_<<" ec:"<<ec.message());
+            LOG_INFO("[on_error] session_id:"<<session_id_<<" ec:"<<ec.message());
             dispatcher_->close(session_id_);
         }
 
@@ -219,7 +219,7 @@ namespace ppbox
             if (token.expired())
                 return;
 
-            LOG_S(Logger::kLevelEvent, "[on_play] session_id:"<<session_id_<<" ec:"<<ec.message());
+            LOG_INFO("[on_play] session_id:"<<session_id_<<" ec:"<<ec.message());
 
             if(boost::asio::error::operation_aborted == ec)
             {
