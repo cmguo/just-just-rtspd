@@ -106,7 +106,7 @@ namespace ppbox
             boost::uint32_t seek_time = 0;
 
             //◊È rtp_info
-            ((ppbox::mux::RtpMux *)cur_mov_->muxer)->get_rtp_info(rtp_info, seek_time, ec);
+            ((ppbox::mux::RtpMuxer *)cur_mov_->muxer)->get_rtp_info(rtp_info, seek_time, ec);
             assert(!ec);
             
             //ÃÓ≥‰Range÷µ
@@ -175,7 +175,7 @@ namespace ppbox
             os << "c=IN IP4 " << "0.0.0.0" << "\r\n";
             
             std::string sdp;
-            ((ppbox::mux::RtpMux *)cur_mov_->muxer)->get_sdp(sdp, ec);
+            ((ppbox::mux::RtpMuxer *)cur_mov_->muxer)->get_sdp(sdp, ec);
             assert(!ec);
             os << sdp;
 
@@ -193,7 +193,7 @@ namespace ppbox
             
             //◊È ssrc
             std::string str_ssrc;
-            ((ppbox::mux::RtpMux *)cur_mov_->muxer)->setup(index, str_ssrc, ec);
+            ((ppbox::mux::RtpMuxer *)cur_mov_->muxer)->setup(index, str_ssrc, ec);
             assert(!ec);
             rtp_info += ";";
             rtp_info += str_ssrc;
