@@ -9,7 +9,7 @@
 #include <framework/system/BytesOrder.h>
 using namespace framework::system;
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("RtpSink", 0)
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.rtspd.RtpSink", Debug)
 
 namespace ppbox
 {

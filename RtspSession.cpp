@@ -18,7 +18,7 @@ using namespace framework::string;
 
 using namespace boost::system;
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("RtspSession", 0)
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.rtspd.RtspSession", Debug)
 
 namespace ppbox
 {

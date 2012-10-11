@@ -22,7 +22,7 @@ using namespace boost::system;
 
 #include <fstream>
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("RtspDispatcher", 0)
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.rtspd.RtspDispatcher", Debug)
 
 namespace ppbox
 {
