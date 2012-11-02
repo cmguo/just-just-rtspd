@@ -1,57 +1,45 @@
-#ifndef _PPBOX_RTSPD_RTPSINK_H_
-#define _PPBOX_RTSPD_RTPSINK_H_
+// RtpSink.h
 
-#include <ppbox/mux/tool/Sink.h>
+#ifndef _PPBOX_RTSPD_RTP_SINK_H_
+#define _PPBOX_RTSPD_RTP_SINK_H_
 
-#include <framework/timer/ClockTime.h>
+#include <ppbox/mux/rtp/RtpPacket.h>
 
-#include <boost/asio/ip/tcp.hpp>
-#include <boost/asio/streambuf.hpp>
+#include <util/stream/Socket.h>
 
 namespace ppbox
 {
-
-    namespace mux
-    {
-        class RtpPacket;
-    }
-
     namespace rtspd
     {
-        class Transport;
 
+        template <typename SocketType>
         class RtpSink
-            : public ppbox::mux::Sink
+            : public util::stream::Socket<SocketType>
         {
-        public:
+        protected:
             RtpSink(
-                bool with_rtcp = true);
-
-            virtual ~RtpSink();
-
-        public:
-            boost::system::error_code setup(
-                boost::asio::ip::tcp::socket * rtsp_sock, 
-                std::string const & transport,
-                std::string & output);
+                SocketType & socket)
+                : util::stream::Socket<SocketType>(socket)
+            {
+            }
 
         private:
-            virtual size_t write(
-                boost::posix_time::ptime const & time_send, 
-                ppbox::demux::Sample&,
-                boost::system::error_code&);
-
-            void send_rtcp(
-                boost::posix_time::ptime const & time_send, 
-                ppbox::mux::RtpPacket const & rtp);
-
-        private:
-            std::pair<Transport *, Transport *> transports_;
-            boost::uint32_t num_pkt_;
-            boost::uint64_t num_byte_;
-            bool with_rtcp_;
-            boost::asio::streambuf rtcp_buf_;
-            framework::timer::Time next_rtcp_time_;
+            virtual size_t private_write_some(
+                util::stream::StreamConstBuffers const & buffers, 
+                boost::system::error_code & ec)
+            {
+                ppbox::mux::RtpPacket const * packets = 
+                    boost::asio::buffer_cast<ppbox::mux::RtpPacket const *>(*buffers.begin());
+                size_t num = 
+                    boost::asio::buffer_size(*buffers.begin());
+                for (size_t i = 0; i < num; ++i) {
+                    util::stream::Socket<SocketType>::private_write_some(packets[i].buffers, ec);
+                    if (ec) {
+                        return i;
+                    }
+                }
+                return num;
+            }
         };
 
     } // namespace rtspd

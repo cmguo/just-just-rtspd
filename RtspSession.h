@@ -25,7 +25,7 @@ namespace ppbox
         class ResourcePool;
 
         class RtspDispatcher;
-        class RtspManager;
+        class RtspdModule;
 
         class RtspSession
             : public util::protocol::RtspServer
@@ -33,7 +33,7 @@ namespace ppbox
         {
         public:
             RtspSession(
-                RtspManager & mgr);
+                RtspdModule & mgr);
 
             ~RtspSession();
 
@@ -54,9 +54,9 @@ namespace ppbox
 
         private:
             std::string path_;
-            RtspDispatcher * dispatcher_;
-            RtspManager& mgr_;
+            RtspdModule& mgr_;
             boost::uint32_t session_id_;
+            RtspDispatcher * dispatcher_;
             util::protocol::rtsp_field::Range range_;
             boost::shared_ptr<void> close_token_;
 			bool rtp_info_send_;

@@ -2,7 +2,6 @@
 
 #include "ppbox/rtspd/Common.h"
 #include "ppbox/rtspd/RtpSink.h"
-#include "ppbox/rtspd/Transport.h"
 
 #include <ppbox/mux/rtp/RtpPacket.h>
 
@@ -15,13 +14,9 @@ namespace ppbox
 {
     namespace rtspd
     {
-        RtpSink::RtpSink(
-            bool with_rtcp)
-            : num_pkt_(0)
-            , num_byte_(0)
-            , with_rtcp_(with_rtcp)
+
+        RtpSink::RtpSink()
         {
-            next_rtcp_time_ -= framework::timer::Duration::seconds(4);
         }
 
         RtpSink::~RtpSink()

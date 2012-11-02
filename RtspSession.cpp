@@ -3,7 +3,9 @@
 #include "ppbox/rtspd/Common.h"
 #include "ppbox/rtspd/RtspSession.h"
 #include "ppbox/rtspd/RtspDispatcher.h"
-#include "ppbox/rtspd/RtspManager.h"
+#include "ppbox/rtspd/RtspdModule.h"
+
+#include <ppbox/common/CommonUrl.h>
 
 #include <util/protocol/rtsp/RtspRequest.h>
 #include <util/protocol/rtsp/RtspResponse.h>
@@ -24,18 +26,24 @@ namespace ppbox
 {
     namespace rtspd
     {
+
         RtspSession::RtspSession(
-            RtspManager & mgr)
-            : util::protocol::RtspServer(mgr.io_svc()),mgr_(mgr)
-        {   
-            dispatcher_ = mgr.dispatcher();
-            session_id_ = 0;
-			rtp_info_send_ = false;
+            RtspdModule & mgr)
+            : util::protocol::RtspServer(mgr.io_svc())
+            , mgr_(mgr)
+            , dispatcher_(NULL)
+        {
+            static boost::uint32_t g_id = 0;
+            session_id_ = ++g_id;
+            rtp_info_send_ = false;
         }
 
         RtspSession::~RtspSession()
         {
-            dispatcher_ = NULL;
+            if (dispatcher_) {
+                mgr_.free_dispatcher(dispatcher_);
+                dispatcher_ = NULL;
+            }
         }
 
         static void nop_deletor(void *) {}
@@ -56,68 +64,23 @@ namespace ppbox
                     break;
                 case RtspRequestHead::describe:
                     {
-                        std::string tmphost = "http://host";
-                        std::string url_profix = "base64";
                         framework::string::Url url(request().head().path);
-                        std::string url_path(url.path_all());
-                        std::string useAgent = request().head()["User-Agent"];
 
-                        //防止一些播放器不支持 playlink带参数的方式
-                        if (url_path.compare(1, url_profix.size(), url_profix) == 0) {
-                            url_path = url_path.substr(url_profix.size()+1, url_path.size() - url_profix.size()+1);
-                            url_path = Base64::decode(url_path);
-                            url_path = std::string("/") + url_path;
-                        }
+                        ppbox::common::decode_url(url, ec);
 
-                        tmphost += url_path;
-                        framework::string::Url request_url(tmphost);
-                        //request_url.decode();
-
-                        path_ = request_url.param_or("playlink");
+                        dispatcher_ = mgr_.alloc_dispatcher(url);
 
                         response().head()["Content-Type"] = "{application/sdp}";
                         response().head()["Content-Base"] = "{" + request().head().path + "/}";
 
-                        std::string type_ = request_url.param_or("type");
-                        if (!type_.empty())
-                        {
-                            type_ = type_ +":///";
-                            path_ = type_ + path_;
-                        }
-                        path_ = framework::string::Url::decode(path_);
+                        std::string user_agent = request().head()["User-Agent"];
 
-                        std::string format = request_url.param_or("format");
-                        if(format.empty())
-                        {//取后缀作为格式
-                            if (request_url.path().size() > 1) 
-                            {
-                                std::string option = request_url.path().substr(1);
-                                std::vector<std::string> parm;
-                                slice<std::string>(option, std::inserter(parm, parm.end()), ".");
-                                if (parm.size() == 2) 
-                                {
-                                    format = parm[1]; 
-                                }
-                            }
-                        }
+                        dispatcher_->async_open(
+                            url, 
+                            user_agent, 
+                            response().data(),
+                            resp);
 
-                        if(!format.empty())
-                        {//如果为 es 或 ts 人工加上rtp-es
-                            if(format.substr(0, sizeof("rtp"))!= "rtp-")
-                            {   
-                                format = "rtp-" + format;
-                            }
-                        }
-
-                        ec = dispatcher_->open(session_id_,path_,format,true,response().data(),
-                            (useAgent.find("Samsung") != std::string::npos
-                            || useAgent.find("NexPlayer") != std::string::npos)?1:0,
-                            get_io_service().wrap(resp));
-
-                        if(ec)
-                        {
-                            resp(ec);
-                        }
                         return;
                     }
                     break;
@@ -127,78 +90,63 @@ namespace ppbox
                         
                         std::string myurl = url.to_string();
                         int t = myurl.find("/track");
-                        if(t < 0 )
-                        {
+                        if(t < 0 ) {
                             ec = rtsp_error::bad_request;
                             break;
                         }
-                        std::string control = myurl.substr(t+ 1);
+                        std::string control = myurl.substr(t + 1);
 
                         std::string transport = request().head().transport.get();
                         response().head().transport = "";
 
                         //监听端口之类的
-                        ec = dispatcher_->setup(session_id_
-                            ,(boost::asio::ip::tcp::socket*)this
-                            , control, transport
-                            ,response().head().transport.get()
-                            ,get_io_service().wrap(resp)
-                            );
+                        dispatcher_->setup(
+                            (boost::asio::ip::tcp::socket &)(*this), 
+                            control, 
+                            transport, 
+                            response().head().transport.get(), 
+                            ec);
 
                         response().head()["Session"] = "{" + format(session_id_) + "}";
-                        return;
-
                     }
                     break;
                 case RtspRequestHead::play:
                     {
-                        if (!request().head().range.is_initialized() && rtp_info_send_)
-                        {
-                            break;
-                        }
-                        else
-                        {
-							rtp_info_send_ = true;
-                            
-							response().head().rtp_info = request().head().path;
-                            
-							if (request().head().range.is_initialized())
-								response().head().range =  request().head().range;
-							else
-								response().head().range = util::protocol::rtsp_field::Range(0);
+                        response().head().rtp_info = request().head().path;
 
-                            dispatcher_->seek(session_id_,
-                                response().head().range.get(),
-                                response().head().rtp_info.get(),
-                                get_io_service().wrap(resp));
-                            
-                            response().head()["Session"] = "{" + format(session_id_) + "}";
-                        }
-                        return;
+                        if (request().head().range.is_initialized())
+                            response().head().range =  request().head().range;
+                        else
+                            response().head().range = util::protocol::rtsp_field::Range(0);
+
+                        close_token_.reset((void *)0, nop_deletor);
+                        dispatcher_->async_play(
+                            response().head().range.get(), 
+                            response().head().rtp_info.get(), 
+                            resp, 
+                            boost::bind(&RtspSession::on_play, this, boost::weak_ptr<void>(close_token_), _1));
+
+                        response().head()["Session"] = "{" + format(session_id_) + "}";
                         
                     }
-                    break;
+                    return;
+
                 case RtspRequestHead::pause:
-                    {
-                        ec = dispatcher_->pause(session_id_,
-                            get_io_service().wrap(resp));
-                        return;
-                    }
+                    dispatcher_->pause(ec);
                     break;
+
                 case RtspRequestHead::teardown:
-                    {
-                        close_token_.reset((void *)0, nop_deletor);
-                        ec = dispatcher_->close(session_id_);
-                        response().head()["Session"] = "{" + format(session_id_) + "}";
-                        session_id_ = 0;
-                    }   
+                    close_token_.reset((void *)0, nop_deletor);
+                    dispatcher_->close(ec);
+                    response().head()["Session"] = "{" + format(session_id_) + "}";
+                    session_id_ = 0;
                     break;
+
                 case RtspRequestHead::set_parameter:
                 case RtspRequestHead::get_parameter:    
-                    {
-                        ec.clear();
-                    }   
+                    ec.clear();
                     break;
+
                 default:
                     ec = rtsp_error::option_not_supported;
             }
@@ -208,8 +156,11 @@ namespace ppbox
         void RtspSession::on_error(
             error_code const & ec)
         {
-            LOG_INFO("[on_error] session_id:"<<session_id_<<" ec:"<<ec.message());
-            dispatcher_->close(session_id_);
+            LOG_INFO("[on_error] session_id:" << session_id_ << " ec:" << ec.message());
+            if (dispatcher_) {
+                boost::system::error_code ec1;
+                dispatcher_->close(ec1);
+            }
         }
 
         void RtspSession::on_play(
@@ -219,24 +170,19 @@ namespace ppbox
             if (token.expired())
                 return;
 
-            LOG_INFO("[on_play] session_id:"<<session_id_<<" ec:"<<ec.message());
+            LOG_INFO("[on_play] session_id:" << session_id_<< " ec:" << ec.message());
 
-            if(boost::asio::error::operation_aborted == ec)
-            {
-                boost::system::error_code ec1;
-                cancel(ec1);
-            }
+            boost::system::error_code ec1;
+            cancel(ec1);
         }
 
         void RtspSession::on_finish()
         {
             response().head().get_content(std::cout);
 
-            if (request().head().method == RtspRequestHead::play) 
-            {
-                close_token_.reset((void *)0, nop_deletor);
-                dispatcher_->play(session_id_, get_io_service().wrap(
-                    boost::bind(&RtspSession::on_play, this, boost::weak_ptr<void>(close_token_), _1)));
+            if (request().head().method == RtspRequestHead::play) {
+                boost::system::error_code ec1;
+                dispatcher_->resume(ec1);
             }
         }
 
