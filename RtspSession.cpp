@@ -143,7 +143,7 @@ namespace ppbox
                     break;
 
                 case RtspRequestHead::set_parameter:
-                case RtspRequestHead::get_parameter:    
+                case RtspRequestHead::get_parameter:
                     ec.clear();
                     break;
 
