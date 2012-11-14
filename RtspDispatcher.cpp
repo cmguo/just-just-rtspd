@@ -156,7 +156,7 @@ namespace ppbox
             os << "i=" << "info.name" << "\r\n";
             //os << "c=IN IP4 " << "0.0.0.0" << "\r\n";
             os << "t=0 0\r\n";
-            if (info.is_live) {
+            if (info.type == ppbox::data::MediaInfo::live) {
                 os << "a=type:broadcast\r\n";
                 os << "a=range:npt=now-\r\n";
             } else {
