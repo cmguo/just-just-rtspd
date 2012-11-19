@@ -86,50 +86,18 @@ namespace ppbox
             ppbox::dispatch::SeekRange seek_range_;
             util::protocol::rtsp_field::Range::Unit unit = range[0];
             seek_range_.type = ppbox::dispatch::SeekRange::time;
-            seek_range_.beg = unit.begin();
+            seek_range_.beg = boost::uint64_t(unit.begin() * 1000);
             if (unit.has_end()) {
-                seek_range_.end = unit.end();
-            } else if (unit.begin() == 0.0f) {
-                seek_range_.type = ppbox::dispatch::SeekRange::none;
+                seek_range_.end = boost::uint64_t(unit.end() * 1000);
             }
 
             return CustomDispatcher::async_play(seek_range_, 
                 boost::bind(&RtspDispatcher::handle_seek, this, boost::ref(rtp_info), boost::ref(range), seek_resp, _1), resp);
         }
         
-        void RtspDispatcher::handle_seek(
-            std::string & rtp_info, 
-            util::protocol::rtsp_field::Range & range, 
-            ppbox::dispatch::response_t const & resp, 
-            boost::system::error_code ec)
-        {
-            ppbox::data::PlayInfo info;
-            info.config = rtp_info; // this is tricking
-            if (!ec) {
-                CustomDispatcher::get_play_info(info, ec);
-            }
-
-            if (ec) {
-                resp(ec);
-                return;
-            }
-
-            //组 rtp_info
-            rtp_info = info.config;
-            
-            //填充Range值
-            float be = (float)info.time_range.beg / 1000.0;
-            float en = (float)info.time_range.end / 1000.0;
-
-            if (0 < info.time_range.end) {
-                en = (float)info.time_range.end / 1000.0;
-                range[0] = rtsp_field::Range::Unit(be, en); 
-            } else {
-                range[0] = rtsp_field::Range::Unit(be, be - 1.0);
-            }
-
-            resp(ec);
-        }
+#ifdef BOOST_WINDOWS_API
+#  define gmtime_r(x, y) (gmtime_s(y, x), y)
+#endif
 
         void RtspDispatcher::handle_open(
             boost::asio::streambuf & os_sdp, 
@@ -164,8 +132,42 @@ namespace ppbox
             }
             os << "a=control:*" << "\r\n";
             os << "c=IN IP4 " << "0.0.0.0" << "\r\n";
-            
+
             os << info.format_data;
+
+            resp(ec);
+        }
+
+        void RtspDispatcher::handle_seek(
+            std::string & rtp_info, 
+            util::protocol::rtsp_field::Range & range, 
+            ppbox::dispatch::response_t const & resp, 
+            boost::system::error_code ec)
+        {
+            ppbox::data::PlayInfo info;
+            info.config = rtp_info; // this is tricking
+            if (!ec) {
+                CustomDispatcher::get_play_info(info, ec);
+            }
+
+            if (ec) {
+                resp(ec);
+                return;
+            }
+
+            //组 rtp_info
+            rtp_info = info.config;
+            
+            //填充Range值
+            float be = (float)info.time_range.beg / 1000.0;
+            float en = (float)info.time_range.end / 1000.0;
+
+            if (0 < info.time_range.end) {
+                en = (float)info.time_range.end / 1000.0;
+                range[0] = rtsp_field::Range::Unit(be, en); 
+            } else {
+                range[0] = rtsp_field::Range::Unit(be, be - 1.0);
+            }
 
             resp(ec);
         }

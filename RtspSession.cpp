@@ -132,12 +132,13 @@ namespace ppbox
                     return;
 
                 case RtspRequestHead::pause:
-                    dispatcher_->pause(ec);
+                    dispatcher_->cancel(ec);
                     break;
 
                 case RtspRequestHead::teardown:
                     close_token_.reset((void *)0, nop_deletor);
                     dispatcher_->close(ec);
+                    dispatcher_ = NULL;
                     response().head()["Session"] = "{" + format(session_id_) + "}";
                     session_id_ = 0;
                     break;
@@ -158,8 +159,10 @@ namespace ppbox
         {
             LOG_INFO("[on_error] session_id:" << session_id_ << " ec:" << ec.message());
             if (dispatcher_) {
+                close_token_.reset((void *)0, nop_deletor);
                 boost::system::error_code ec1;
                 dispatcher_->close(ec1);
+                dispatcher_ = NULL;
             }
         }
 
