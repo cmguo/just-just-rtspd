@@ -66,13 +66,13 @@ namespace ppbox
             //}
 
             //×é ssrc
-            ppbox::data::PlayInfo info;
-            info.config = "ssrc=" + stream_index_str; // this is tricking
-            if (!CustomDispatcher::get_play_info(info, ec)) {
+            ppbox::data::StreamStatus info;
+            info.desc = "ssrc=" + stream_index_str; // this is tricking
+            if (!CustomDispatcher::get_stream_status(info, ec)) {
                 return false;
             }
             out_transport += ";";
-            out_transport += info.config;
+            out_transport += info.desc;
 
             return true;
         }
@@ -144,10 +144,10 @@ namespace ppbox
             ppbox::dispatch::response_t const & resp, 
             boost::system::error_code ec)
         {
-            ppbox::data::PlayInfo info;
-            info.config = rtp_info; // this is tricking
+            ppbox::data::StreamStatus info;
+            info.desc = rtp_info; // this is tricking
             if (!ec) {
-                CustomDispatcher::get_play_info(info, ec);
+                CustomDispatcher::get_stream_status(info, ec);
             }
 
             if (ec) {
@@ -156,13 +156,13 @@ namespace ppbox
             }
 
             //×é rtp_info
-            rtp_info = info.config;
+            rtp_info = info.desc;
             
             //Ìî³äRangeÖµ
             float be = (float)info.time_range.beg / 1000.0;
             float en = (float)info.time_range.end / 1000.0;
 
-            if (0 < info.time_range.end) {
+            if (info.time_range.end != ppbox::data::invalid_size) {
                 en = (float)info.time_range.end / 1000.0;
                 range[0] = rtsp_field::Range::Unit(be, en); 
             } else {
