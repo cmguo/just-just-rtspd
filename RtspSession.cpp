@@ -15,12 +15,11 @@ using namespace util::protocol;
 #include <framework/string/Url.h>
 #include <framework/logger/StreamRecord.h>
 #include <framework/string/Base64.h>
-using namespace framework::logger;
 using namespace framework::string;
 
 using namespace boost::system;
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.rtspd.RtspSession", Debug)
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.rtspd.RtspSession", framework::logger::Debug)
 
 namespace ppbox
 {
