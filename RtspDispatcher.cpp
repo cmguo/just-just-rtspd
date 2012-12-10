@@ -4,6 +4,8 @@
 #include "ppbox/rtspd/RtspDispatcher.h"
 #include "ppbox/rtspd/Transport.h"
 
+#include <ppbox/mux/rtp/RtpStreamDesc.h>
+
 #include <util/protocol/rtsp/RtspFieldRange.h>
 #include <util/protocol/rtsp/RtspError.h>
 using namespace util::protocol;
@@ -66,13 +68,16 @@ namespace ppbox
             //}
 
             //×é ssrc
-            ppbox::data::StreamStatus info;
-            info.desc = "ssrc=" + stream_index_str; // this is tricking
-            if (!CustomDispatcher::get_stream_status(info, ec)) {
+            std::vector<ppbox::avformat::StreamInfo> info;
+            if (!CustomDispatcher::get_stream_info(info, ec)) {
                 return false;
             }
-            out_transport += ";";
-            out_transport += info.desc;
+
+            ppbox::mux::RtpStreamDesc rtp_desc;
+            rtp_desc.from_data(info[stream_index].format_data);
+            
+            out_transport += ";ssrc=";
+            out_transport += framework::string::format(rtp_desc.ssrc);
 
             return true;
         }
@@ -144,10 +149,14 @@ namespace ppbox
             ppbox::dispatch::response_t const & resp, 
             boost::system::error_code ec)
         {
-            ppbox::data::StreamStatus info;
-            info.desc = rtp_info; // this is tricking
+            ppbox::data::StreamStatus status;
+            std::vector<ppbox::avformat::StreamInfo> streams;
+
             if (!ec) {
-                CustomDispatcher::get_stream_status(info, ec);
+                CustomDispatcher::get_stream_status(status, ec);
+            }
+            if (!ec) {
+                CustomDispatcher::get_stream_info(streams, ec);
             }
 
             if (ec) {
@@ -156,14 +165,29 @@ namespace ppbox
             }
 
             //×é rtp_info
-            rtp_info = info.desc;
+            std::string url;
+            url.swap(rtp_info);
+            for (size_t i = 0; i < streams.size(); ++i) {
+                ppbox::mux::RtpStreamDesc rtp_desc;
+                rtp_desc.from_data(streams[i].format_data);
+                if (rtp_desc.setup) {
+                    rtp_info.append(url);
+                    rtp_info.append(rtp_desc.stream);
+                    rtp_info.append(1, ';');
+                    rtp_info.append(rtp_desc.rtp_info);
+                    rtp_info.append(1, ',');
+                }
+            }
+            if (!rtp_info.empty()) {
+                rtp_info.erase(--rtp_info.end());
+            }
             
             //Ìî³äRangeÖµ
-            float be = (float)info.time_range.beg / 1000.0;
-            float en = (float)info.time_range.end / 1000.0;
+            float be = (float)status.time_range.beg / 1000.0;
+            float en = (float)status.time_range.end / 1000.0;
 
-            if (info.time_range.end != ppbox::data::invalid_size) {
-                en = (float)info.time_range.end / 1000.0;
+            if (status.time_range.end != ppbox::data::invalid_size) {
+                en = (float)status.time_range.end / 1000.0;
                 range[0] = rtsp_field::Range::Unit(be, en); 
             } else {
                 range[0] = rtsp_field::Range::Unit(be, be - 1.0);
