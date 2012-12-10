@@ -5,7 +5,8 @@
 
 #include <ppbox/mux/rtp/RtpPacket.h>
 
-#include <util/stream/Socket.h>
+#include <ppbox/dispatch/DispatchBase.h>
+#include <ppbox/dispatch/Sink.h>
 
 namespace ppbox
 {
@@ -14,32 +15,34 @@ namespace ppbox
 
         template <typename SocketType>
         class RtpSink
-            : public util::stream::Socket<SocketType>
+            : public ppbox::dispatch::Sink
         {
         protected:
             RtpSink(
                 SocketType & socket)
-                : util::stream::Socket<SocketType>(socket)
+                : socket_(socket)
             {
             }
 
         private:
-            virtual size_t private_write_some(
-                util::stream::StreamConstBuffers const & buffers, 
+            virtual size_t write(
+                ppbox::avformat::Sample const & sample, 
                 boost::system::error_code & ec)
             {
-                ppbox::mux::RtpPacket const * packets = 
-                    boost::asio::buffer_cast<ppbox::mux::RtpPacket const *>(*buffers.begin());
-                size_t num = 
-                    boost::asio::buffer_size(*buffers.begin());
-                for (size_t i = 0; i < num; ++i) {
-                    util::stream::Socket<SocketType>::private_write_some(packets[i].buffers, ec);
+                ppbox::mux::RtpSplitContent const & packets = 
+                    *(ppbox::mux::RtpSplitContent const *)(sample.context);
+                size_t total_size = 0;
+                for (size_t i = 0; i < packets.size(); ++i) {
+                    total_size += socket_.send(packets[i].buffers, 0, ec);
                     if (ec) {
-                        return i;
+                        break;;
                     }
                 }
-                return num;
+                return total_size;
             }
+
+        private:
+            SocketType & socket_;
         };
 
     } // namespace rtspd

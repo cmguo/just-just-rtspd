@@ -13,9 +13,8 @@ namespace ppbox
             boost::uint16_t client_port, 
             boost::uint16_t & server_port, 
             boost::system::error_code & ec)
-            : boost::base_from_member<boost::asio::ip::udp::socket>(boost::ref(rtsp_socket.get_io_service()))
-            , RtpSink<boost::asio::ip::udp::socket>(member)
-            , socket_(member)
+            : RtpSink<boost::asio::ip::udp::socket>(socket_)
+            , socket_(rtsp_socket.get_io_service())
         {
             boost::asio::ip::udp::endpoint endpoint(
                 rtsp_socket.remote_endpoint().address(), client_port);

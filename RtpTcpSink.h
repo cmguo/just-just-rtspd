@@ -3,7 +3,9 @@
 #ifndef _PPBOX_RTSPD_RTP_TCP_SINK_H_
 #define _PPBOX_RTSPD_RTP_TCP_SINK_H_
 
-#include <util/stream/TcpSocket.h>
+#include "ppbox/rtspd/RtpSink.h"
+
+#include <boost/asio/ip/tcp.hpp>
 
 namespace ppbox
 {
@@ -11,7 +13,7 @@ namespace ppbox
     {
 
         class RtpTcpSink
-            : public util::stream::TcpSocket
+            : public RtpSink<boost::asio::ip::tcp::socket>
         {
         public:
             RtpTcpSink(

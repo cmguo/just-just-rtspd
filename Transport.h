@@ -3,7 +3,7 @@
 #ifndef _PPBOX_RTSPD_TRANSPORT_H_
 #define _PPBOX_RTSPD_TRANSPORT_H_
 
-#include <util/stream/Sink.h>
+#include "ppbox/rtspd/RtpSink.h"
 
 #include <boost/asio/ip/tcp.hpp>
 
@@ -12,7 +12,7 @@ namespace ppbox
     namespace rtspd
     {
 
-        typedef std::pair<util::stream::Sink *, util::stream::Sink *> transport_pair_t;
+        typedef std::pair<ppbox::dispatch::Sink *, ppbox::dispatch::Sink *> transport_pair_t;
 
         extern transport_pair_t create_transport_pair(
                 boost::asio::ip::tcp::socket & rtsp_socket, 

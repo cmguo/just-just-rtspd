@@ -11,7 +11,7 @@ namespace ppbox
         RtpTcpSink::RtpTcpSink(
             boost::asio::ip::tcp::socket & rtsp_socket, 
             boost::system::error_code & ec)
-            : util::stream::TcpSocket(rtsp_socket)
+            : RtpSink<boost::asio::ip::tcp::socket>(rtsp_socket)
         {
             ec.clear();
         }

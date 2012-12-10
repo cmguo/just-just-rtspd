@@ -7,7 +7,6 @@
 
 #include <boost/asio/ip/udp.hpp>
 #include <boost/asio/ip/tcp.hpp>
-#include <boost/utility/base_from_member.hpp>
 
 namespace ppbox
 {
@@ -16,8 +15,7 @@ namespace ppbox
     {
 
         class RtpUdpSink
-            : boost::base_from_member<boost::asio::ip::udp::socket>
-            , public RtpSink<boost::asio::ip::udp::socket>
+            : public RtpSink<boost::asio::ip::udp::socket>
         {
         public:
             RtpUdpSink(
@@ -29,7 +27,7 @@ namespace ppbox
             virtual ~RtpUdpSink();
 
         private:
-            socket_t & socket_;
+            boost::asio::ip::udp::socket socket_;
         };
 
     } // namespace rtspd
