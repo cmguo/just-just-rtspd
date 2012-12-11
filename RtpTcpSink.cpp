@@ -10,8 +10,11 @@ namespace ppbox
 
         RtpTcpSink::RtpTcpSink(
             boost::asio::ip::tcp::socket & rtsp_socket, 
+            boost::uint8_t interleaveds[2], 
             boost::system::error_code & ec)
-            : RtpSink<boost::asio::ip::tcp::socket>(rtsp_socket)
+            : RtpSink<RtpTcpSocket>(rtp_socket_, rtcp_socket_)
+            , rtp_socket_(rtsp_socket, interleaveds[0])
+            , rtcp_socket_(rtsp_socket, interleaveds[1])
         {
             ec.clear();
         }

@@ -12,9 +12,7 @@ namespace ppbox
     namespace rtspd
     {
 
-        typedef std::pair<ppbox::dispatch::Sink *, ppbox::dispatch::Sink *> transport_pair_t;
-
-        extern transport_pair_t create_transport_pair(
+        extern ppbox::dispatch::Sink * create_transport(
                 boost::asio::ip::tcp::socket & rtsp_socket, 
                 std::string const & in_transport, 
                 std::string & out_transport, 

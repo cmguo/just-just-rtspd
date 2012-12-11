@@ -36,7 +36,7 @@ namespace ppbox
             std::string const find_;
         };
 
-        transport_pair_t create_transport_pair(
+        ppbox::dispatch::Sink * create_transport(
             boost::asio::ip::tcp::socket & rtsp_socket, 
             std::string const & in_transport, 
             std::string & out_transport, 
@@ -46,64 +46,39 @@ namespace ppbox
             slice<std::string>(in_transport, std::back_inserter(vec_t), ",", "", "");
             std::vector<std::string> vec;
             slice<std::string>(vec_t[0], std::back_inserter(vec), ";");
-            transport_pair_t transports;
+            ppbox::dispatch::Sink * sink = NULL;
             if (vec[0] == "RTP/AVP" || vec[0] == "RTP/AVP/UDP") {
                 std::vector<std::string>::iterator iter = 
                     std::find_if(vec.begin(), vec.end(), find_parameter("client_port="));
                 if (iter != vec.end()) {
-                    std::vector<boost::uint16_t> client_ports(2, 0);
-                    std::vector<boost::uint16_t> server_ports(2, 0);
-                    slice<boost::uint16_t>(*iter, client_ports.begin(), "-", "client_port=");
-                    while (true) {
-                        transports.first = new RtpUdpSink(rtsp_socket, client_ports[0], server_ports[0], ec);
-                        if (ec) {
-                            delete transports.first;
-                            transports.first = NULL;
-                            break;
-                        }
-                        server_ports[1] = server_ports[0] + 1;
-                        transports.second = new RtpUdpSink(rtsp_socket, client_ports[1], server_ports[1], ec);
-                        if (!ec) {
-                            vec.insert(++iter, join(server_ports.begin(), server_ports.end(), "-", "server_port="));
-                            break;
-                        } else if (ec != boost::asio::error::address_in_use) {
-                            delete transports.first;
-                            transports.first = NULL;
-                            delete transports.second;
-                            transports.second = NULL;
-                            break;
-                        }
+                    boost::uint16_t client_ports[2] = {0, 0};
+                    boost::uint16_t server_ports[2] = {0, 0};
+                    slice<boost::uint16_t>(*iter, client_ports, "-", "client_port=");
+                    sink = new RtpUdpSink(rtsp_socket, client_ports, server_ports, ec);
+                    if (ec) {
+                        delete sink;
+                        sink = NULL;
+                    } else {
+                        vec.insert(++iter, join(server_ports, server_ports + 2, "-", "server_port="));
                     }
                 }
             } else {
                 std::vector<std::string>::iterator iter = 
                     std::find_if(vec.begin(), vec.end(), find_parameter("interleaved="));
                 if (iter != vec.end()) {
-                    std::vector<boost::uint16_t> interleaveds(2, 0);
-                    slice<boost::uint16_t>(*iter, interleaveds.begin(), "-", "interleaved=");
-                    transports.first = new RtpTcpSink(rtsp_socket, ec);
+                    boost::uint8_t interleaveds[2] = {0, 0};
+                    slice<boost::uint8_t>(*iter, interleaveds, "-", "interleaved=");
+                    sink = new RtpTcpSink(rtsp_socket, interleaveds, ec);
                     if (ec) {
-                        delete transports.first;
-                        transports.first = NULL;
-                    } else {
-                        transports.second = new RtpTcpSink(rtsp_socket, ec);
-                        if (ec) {
-                            delete transports.first;
-                            transports.first = NULL;
-                            delete transports.second;
-                            transports.second = NULL;
-                        }
+                        delete sink;
+                        sink = NULL;
                     }
                 }
             }
             if (!ec) {
-                /*boost::uint32_t iSsrc = 0;
-                framework::string::parse2(ssrc.c_str(),iSsrc);
-                boost::uint32_t ssrc_eb = framework::system::BytesOrder::big_endian_to_host(iSsrc);
-                iSsrc = framework::system::BytesOrder::host_to_big_endian(ssrc_eb);*/
                 out_transport = join(vec.begin(), vec.end(), ";", "", "");
             }
-            return transports;
+            return sink;
         }
 
     } // namespace rtspd

@@ -58,9 +58,9 @@ namespace ppbox
             size_t stream_index = -1;
             parse2<size_t>(stream_index_str, stream_index);
 
-            transport_pair_t transports = 
-                create_transport_pair(rtsp_sock, in_transport, out_transport, ec);
-            if (!CustomDispatcher::setup(stream_index, *transports.first, ec)) {
+            ppbox::dispatch::Sink * sink = 
+                create_transport(rtsp_sock, in_transport, out_transport, ec);
+            if (!CustomDispatcher::setup(stream_index, *sink, ec)) {
                 return false;
             }
             //if (!CustomDispatcher::setup(stream_index + 0x100, *transports.second, ec)) {
