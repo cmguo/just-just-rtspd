@@ -26,6 +26,8 @@ namespace ppbox
             {
             }
 
+            virtual ~RtpSink() {}
+
         private:
             template <typename Collection>
             struct sub_collection_t

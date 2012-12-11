@@ -33,7 +33,8 @@ namespace ppbox
                 server_port[1] = server_port[0] + 1;
                 boost::asio::ip::udp::endpoint local_endpoint(
                     rtsp_socket.local_endpoint().address(), server_port[1]);
-                rtcp_socket_.bind(local_endpoint, ec)
+                rtcp_socket_.open(local_endpoint.protocol(), ec)
+                    || rtcp_socket_.bind(local_endpoint, ec)
                     || rtcp_socket_.connect(endpoint, ec);
                 if (ec != boost::asio::error::address_in_use) {
                     break;

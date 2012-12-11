@@ -22,6 +22,7 @@ namespace ppbox
                 boost::uint8_t interleaved)
                 : tcp_socket_(tcp_socket)
                 , head_left_(0)
+                , body_left_(0)
             {
                 head_[0] = '$';
                 head_[1] = interleaved;
