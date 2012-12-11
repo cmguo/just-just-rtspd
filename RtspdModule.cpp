@@ -40,9 +40,9 @@ namespace ppbox
         }
 
         RtspDispatcher * RtspdModule::alloc_dispatcher(
-            framework::string::Url & url)
+            framework::string::Url & url, 
+            boost::system::error_code & ec)
         {
-            boost::system::error_code ec;
             dispatch_module_.normalize_url(url, ec);
             return new RtspDispatcher(*dispatch_module_.alloc_dispatcher(true));
         }

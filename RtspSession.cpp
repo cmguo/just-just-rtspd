@@ -5,8 +5,6 @@
 #include "ppbox/rtspd/RtspDispatcher.h"
 #include "ppbox/rtspd/RtspdModule.h"
 
-#include <ppbox/common/CommonUrl.h>
-
 #include <util/protocol/rtsp/RtspRequest.h>
 #include <util/protocol/rtsp/RtspResponse.h>
 #include <util/protocol/rtsp/RtspError.h>
@@ -65,9 +63,7 @@ namespace ppbox
                     {
                         framework::string::Url url(request().head().path);
 
-                        ppbox::common::decode_url(url, ec);
-
-                        dispatcher_ = mgr_.alloc_dispatcher(url);
+                        dispatcher_ = mgr_.alloc_dispatcher(url, ec);
 
                         response().head()["Content-Type"] = "{application/sdp}";
                         response().head()["Content-Base"] = "{" + request().head().path + "/}";

@@ -39,7 +39,8 @@ namespace ppbox
             using ppbox::common::CommonModuleBase<RtspdModule>::io_svc;
 
             RtspDispatcher * alloc_dispatcher(
-                framework::string::Url & url);
+                framework::string::Url & url, 
+                boost::system::error_code & ec);
 
             void free_dispatcher(
                 RtspDispatcher * dispatcher);
