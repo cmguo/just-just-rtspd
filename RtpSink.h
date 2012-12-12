@@ -23,6 +23,7 @@ namespace ppbox
                 SocketType & rtcp_socket)
                 : rtp_socket_(rtp_socket)
                 , rtcp_socket_(rtcp_socket)
+                , next_packet_(0)
             {
             }
 
@@ -65,21 +66,40 @@ namespace ppbox
                 ppbox::avformat::Sample const & sample, 
                 boost::system::error_code & ec)
             {
-                std::vector<ppbox::mux::RtpPacket> const & packets = 
-                    *(std::vector<ppbox::mux::RtpPacket> const *)(sample.context);
+                std::vector<ppbox::mux::RtpPacket> & packets = 
+                    *(std::vector<ppbox::mux::RtpPacket> *)(sample.context);
                 size_t total_size = 0;
-                for (size_t i = 0; i < packets.size(); ++i) {
-                    if (packets[i].size == 0) { // rtcp
-                        rtcp_socket_.send(
+                for (size_t i = next_packet_; i < packets.size(); ++i) {
+                    if (packets[i].mpt == 0) { // RTCP
+                        total_size += rtcp_socket_.send(
                             sub_collection(sample.data, packets[i].buf_beg, packets[i].buf_end), 
                             0, ec);
-                        continue;
+                    } else {
+                        total_size += rtp_socket_.send(
+                            sub_collection(sample.data, packets[i].buf_beg, packets[i].buf_end), 
+                            0, ec);
                     }
-                    total_size += rtp_socket_.send(
-                        sub_collection(sample.data, packets[i].buf_beg, packets[i].buf_end), 
-                        0, ec);
                     if (ec) {
                         break;;
+                    }
+                }
+                if (total_size == sample.size) {
+                    next_packet_ = 0;
+                } else {
+                    size_t total_size2 = total_size;
+                    for (size_t i = 0; i < packets.size(); ++i) {
+                        if (packets[i].size > total_size2) {
+                            next_packet_ = i;
+                            for (size_t j = packets[i].buf_beg; j < packets[i].buf_end; ++j) {
+                                if (boost::asio::buffer_size(sample.data[j]) > total_size2) {
+                                    packets[i].buf_beg = j;
+                                    break;
+                                }
+                                total_size2 -= boost::asio::buffer_size(sample.data[j]);
+                            }
+                            break;
+                        }
+                        total_size2 -= packets[i].size;
                     }
                 }
                 return total_size;
@@ -88,6 +108,7 @@ namespace ppbox
         private:
             SocketType & rtp_socket_;
             SocketType & rtcp_socket_;
+            size_t next_packet_;
         };
 
     } // namespace rtspd

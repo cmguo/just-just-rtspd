@@ -39,18 +39,18 @@ namespace ppbox
 
         public:
             virtual void local_process(
-                local_process_response_type const & resp);
+                response_type const & resp);
 
             virtual void on_error(
                 boost::system::error_code const & ec);
 
             virtual void on_finish();
 
+            virtual void post_process(
+                response_type const & resp);
 
             void on_play(
-                boost::weak_ptr<void> const & token, 
                 boost::system::error_code const & ec);
-
 
         private:
             std::string path_;
@@ -58,8 +58,9 @@ namespace ppbox
             boost::uint32_t session_id_;
             RtspDispatcher * dispatcher_;
             util::protocol::rtsp_field::Range range_;
-            boost::shared_ptr<void> close_token_;
-			bool rtp_info_send_;
+            bool rtp_info_send_;
+            bool playing_;
+            response_type post_resp_;
         };
 
     } // namespace rtspd

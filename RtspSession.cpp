@@ -29,10 +29,14 @@ namespace ppbox
             : util::protocol::RtspServer(mgr.io_svc())
             , mgr_(mgr)
             , dispatcher_(NULL)
+            , playing_(false)
         {
             static boost::uint32_t g_id = 0;
             session_id_ = ++g_id;
             rtp_info_send_ = false;
+
+            boost::system::error_code ec;
+            set_non_block(true, ec);
         }
 
         RtspSession::~RtspSession()
@@ -46,7 +50,7 @@ namespace ppbox
         static void nop_deletor(void *) {}
 
         void RtspSession::local_process(
-            local_process_response_type const & resp)
+            response_type const & resp)
         {
             //如果不是 Init状态 就是异常情况
             
@@ -114,12 +118,13 @@ namespace ppbox
                         else
                             response().head().range = util::protocol::rtsp_field::Range(0);
 
-                        close_token_.reset((void *)0, nop_deletor);
+                        playing_ = true;
+
                         dispatcher_->async_play(
                             response().head().range.get(), 
                             response().head().rtp_info.get(), 
                             resp, 
-                            boost::bind(&RtspSession::on_play, this, boost::weak_ptr<void>(close_token_), _1));
+                            boost::bind(&RtspSession::on_play, this, _1));
 
                         response().head()["Session"] = "{" + format(session_id_) + "}";
                         
@@ -131,11 +136,14 @@ namespace ppbox
                     break;
 
                 case RtspRequestHead::teardown:
-                    close_token_.reset((void *)0, nop_deletor);
                     dispatcher_->close(ec);
                     dispatcher_ = NULL;
                     response().head()["Session"] = "{" + format(session_id_) + "}";
                     session_id_ = 0;
+                    if (playing_) {
+                        post_resp_ = resp;
+                        return;
+                    }
                     break;
 
                 case RtspRequestHead::set_parameter:
@@ -154,24 +162,41 @@ namespace ppbox
         {
             LOG_INFO("[on_error] session_id:" << session_id_ << " ec:" << ec.message());
             if (dispatcher_) {
-                close_token_.reset((void *)0, nop_deletor);
                 boost::system::error_code ec1;
                 dispatcher_->close(ec1);
                 dispatcher_ = NULL;
             }
         }
 
+        void RtspSession::post_process(
+            response_type const & resp)
+        {
+            LOG_INFO("[post_process] session_id:" << session_id_);
+
+            if (playing_) {
+                post_resp_ = resp;
+            } else {
+                boost::system::error_code ec;
+                resp(ec);
+            }
+        }
+
         void RtspSession::on_play(
-            boost::weak_ptr<void> const & token, 
             boost::system::error_code const & ec)
         {
-            if (token.expired())
-                return;
+            LOG_INFO("[on_play] session_id:" << session_id_ << " ec:" << ec.message());
 
-            LOG_INFO("[on_play] session_id:" << session_id_<< " ec:" << ec.message());
+            playing_ = false;
 
-            boost::system::error_code ec1;
-            cancel(ec1);
+            if (!post_resp_.empty()) {
+                boost::system::error_code ec1;
+                response_type resp;
+                resp.swap(post_resp_);
+                resp(ec1);
+            } else if (ec) {
+                boost::system::error_code ec1;
+                cancel(ec1);
+            }
         }
 
         void RtspSession::on_finish()

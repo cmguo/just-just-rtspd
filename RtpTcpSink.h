@@ -46,8 +46,9 @@ namespace ppbox
                     size_t len = util::buffers::buffers_size(buffers);
                     head_[2] = (boost::uint8_t)(len >> 8);
                     head_[3] = (boost::uint8_t)(len & 0xff);
-                    head_left_ = 4;
                     buffers2.push_back(boost::asio::buffer(head_, 4));
+                    head_left_ = 4;
+                    body_left_ = len;
                 }
                 buffers2.insert(buffers2.end(), buffers.begin(), buffers.end());
                 size_t byte_sent = tcp_socket_.send(buffers2, flags, ec);
@@ -55,8 +56,8 @@ namespace ppbox
                     head_left_ -= byte_sent;
                     byte_sent = 0;
                 } else {
-                    head_left_ = 0;
                     byte_sent -= head_left_;
+                    head_left_ = 0;
                     body_left_ -= byte_sent;
                 }
                 return byte_sent;
