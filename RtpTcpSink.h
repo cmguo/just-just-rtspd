@@ -58,7 +58,11 @@ namespace ppbox
                 } else {
                     byte_sent -= head_left_;
                     head_left_ = 0;
-                    body_left_ -= byte_sent;
+                    if (byte_sent < body_left_) {
+                        body_left_ -= byte_sent;
+                    } else {
+                        body_left_ = 0;
+                    }
                 }
                 return byte_sent;
             }

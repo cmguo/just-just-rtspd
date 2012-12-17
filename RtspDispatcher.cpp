@@ -132,6 +132,8 @@ namespace ppbox
             if (info.type == ppbox::data::MediaInfo::live) {
                 os << "a=type:broadcast\r\n";
                 os << "a=range:npt=now-\r\n";
+            } else if (info.duration == ppbox::data::invalid_size) {
+                os << "a=range:npt=0.000-\r\n";
             } else {
                 os << "a=range:npt=0.000-" << (float)info.duration / 1000.0 << "\r\n";
             }

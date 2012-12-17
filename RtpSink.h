@@ -70,29 +70,36 @@ namespace ppbox
                     *(std::vector<ppbox::mux::RtpPacket> *)(sample.context);
                 size_t total_size = 0;
                 for (size_t i = next_packet_; i < packets.size(); ++i) {
+                    size_t bytes_send = 0;
                     if (packets[i].mpt == 0) { // RTCP
-                        total_size += rtcp_socket_.send(
+                        bytes_send = rtcp_socket_.send(
                             sub_collection(sample.data, packets[i].buf_beg, packets[i].buf_end), 
                             0, ec);
                     } else {
-                        total_size += rtp_socket_.send(
+                        bytes_send = rtp_socket_.send(
                             sub_collection(sample.data, packets[i].buf_beg, packets[i].buf_end), 
                             0, ec);
                     }
-                    if (ec) {
-                        break;;
+                    total_size += bytes_send;
+                    if (ec || bytes_send < packets[i].size) {
+                        break;
                     }
                 }
                 if (total_size == sample.size) {
                     next_packet_ = 0;
                 } else {
                     size_t total_size2 = total_size;
-                    for (size_t i = 0; i < packets.size(); ++i) {
+                    for (size_t i = next_packet_; i < packets.size(); ++i) {
                         if (packets[i].size > total_size2) {
                             next_packet_ = i;
+                            packets[i].size -= total_size2;
                             for (size_t j = packets[i].buf_beg; j < packets[i].buf_end; ++j) {
                                 if (boost::asio::buffer_size(sample.data[j]) > total_size2) {
                                     packets[i].buf_beg = j;
+                                    for (size_t k = i; k < packets.size(); ++k) {
+                                        packets[k].buf_beg -= j;
+                                        packets[k].buf_end -= j;
+                                    }
                                     break;
                                 }
                                 total_size2 -= boost::asio::buffer_size(sample.data[j]);
