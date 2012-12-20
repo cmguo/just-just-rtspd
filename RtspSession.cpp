@@ -193,7 +193,7 @@ namespace ppbox
                 response_type resp;
                 resp.swap(post_resp_);
                 resp(ec1);
-            } else if (ec) {
+            } else if (ec && ec != boost::asio::error::operation_aborted) {
                 boost::system::error_code ec1;
                 cancel(ec1);
             }

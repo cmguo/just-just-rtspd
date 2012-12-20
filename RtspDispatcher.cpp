@@ -170,9 +170,11 @@ namespace ppbox
             std::string url;
             url.swap(rtp_info);
             for (size_t i = 0; i < streams.size(); ++i) {
+                if (streams[i].format_data.empty())
+                    continue;
+                ppbox::mux::RtpStreamDesc rtp_desc;
+                rtp_desc.from_data(streams[i].format_data);
                 if (rtp_desc.setup) {
-                    ppbox::mux::RtpStreamDesc rtp_desc;
-                    rtp_desc.from_data(streams[i].format_data);
                     rtp_info.append(url);
                     rtp_info.append(rtp_desc.stream);
                     rtp_info.append(1, ';');
