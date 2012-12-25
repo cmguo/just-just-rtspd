@@ -29,11 +29,10 @@ namespace ppbox
             : util::protocol::RtspServer(mgr.io_svc())
             , mgr_(mgr)
             , dispatcher_(NULL)
-            , playing_(false)
+            , play_count_(0)
         {
             static boost::uint32_t g_id = 0;
             session_id_ = ++g_id;
-            rtp_info_send_ = false;
 
             boost::system::error_code ec;
             set_non_block(true, ec);
@@ -118,7 +117,7 @@ namespace ppbox
                         else
                             response().head().range = util::protocol::rtsp_field::Range(0);
 
-                        playing_ = true;
+                        ++play_count_;
 
                         dispatcher_->async_play(
                             response().head().range.get(), 
@@ -140,10 +139,6 @@ namespace ppbox
                     dispatcher_ = NULL;
                     response().head()["Session"] = "{" + format(session_id_) + "}";
                     session_id_ = 0;
-                    if (playing_) {
-                        post_resp_ = resp;
-                        return;
-                    }
                     break;
 
                 case RtspRequestHead::set_parameter:
@@ -173,7 +168,7 @@ namespace ppbox
         {
             LOG_INFO("[post_process] session_id:" << session_id_);
 
-            if (playing_) {
+            if (play_count_) {
                 post_resp_ = resp;
             } else {
                 boost::system::error_code ec;
@@ -186,9 +181,9 @@ namespace ppbox
         {
             LOG_INFO("[on_play] session_id:" << session_id_ << " ec:" << ec.message());
 
-            playing_ = false;
+            --play_count_;
 
-            if (!post_resp_.empty()) {
+            if (!post_resp_.empty() && play_count_ == 0) {
                 boost::system::error_code ec1;
                 response_type resp;
                 resp.swap(post_resp_);

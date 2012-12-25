@@ -58,8 +58,7 @@ namespace ppbox
             boost::uint32_t session_id_;
             RtspDispatcher * dispatcher_;
             util::protocol::rtsp_field::Range range_;
-            bool rtp_info_send_;
-            bool playing_;
+            boost::uint32_t play_count_;
             response_type post_resp_;
         };
 
