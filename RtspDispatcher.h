@@ -23,11 +23,6 @@ namespace util
 
 namespace ppbox
 {
-    namespace mux
-    {
-        struct MuxTag;
-    }
-
     namespace rtspd
     {  
 
