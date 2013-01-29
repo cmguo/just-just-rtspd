@@ -3,8 +3,7 @@
 #ifndef _PPBOX_RTSPD_RTSPD_MODULE_H_
 #define _PPBOX_RTSPD_RTSPD_MODULE_H_
 
-#include <util/protocol/rtsp/RtspServerManager.h>
-
+#include <framework/network/ServerManager.h>
 #include <framework/string/Url.h>
 
 namespace ppbox
@@ -22,7 +21,7 @@ namespace ppbox
 
         class RtspdModule 
             : public ppbox::common::CommonModuleBase<RtspdModule>
-            , public util::protocol::RtspServerManager<RtspSession, RtspdModule>
+            , public framework::network::ServerManager<RtspSession, RtspdModule>
         {
         public:
             RtspdModule(

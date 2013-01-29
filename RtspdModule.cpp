@@ -7,6 +7,8 @@
 
 #include <ppbox/dispatch/DispatchModule.h>
 
+#include <framework/network/TcpSocket.hpp>
+
 namespace ppbox
 {
     namespace rtspd
@@ -15,7 +17,7 @@ namespace ppbox
         RtspdModule::RtspdModule(
             util::daemon::Daemon & daemon)
             : ppbox::common::CommonModuleBase<RtspdModule>(daemon, "RtspdModule")
-            , util::protocol::RtspServerManager<RtspSession, RtspdModule>(daemon.io_svc())
+            , framework::network::ServerManager<RtspSession, RtspdModule>(daemon.io_svc())
             , addr_("0.0.0.0:5054")
             , dispatch_module_(util::daemon::use_module<ppbox::dispatch::DispatchModule>(get_daemon()))
         {
