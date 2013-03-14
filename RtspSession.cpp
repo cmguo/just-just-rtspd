@@ -66,10 +66,10 @@ namespace ppbox
                     {
                         framework::string::Url url(request().head().path);
 
-                        dispatcher_ = mgr_.alloc_dispatcher(url, ec);
-
                         response().head()["Content-Type"] = "{application/sdp}";
-                        response().head()["Content-Base"] = "{" + request().head().path + "/}";
+                        response().head()["Content-Base"] = "{" + url.to_string() + "/}";
+
+                        dispatcher_ = mgr_.alloc_dispatcher(url, ec);
 
                         std::string user_agent = request().head()["User-Agent"];
 

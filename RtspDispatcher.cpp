@@ -43,6 +43,10 @@ namespace ppbox
             boost::asio::streambuf & os, 
             ppbox::dispatch::response_t  const & resp)
         {
+            if (client.find("Samsung") != std::string::npos
+                || client.find("NexPlayer") != std::string::npos) {
+                    url.param("mux.RtpH264.usedts", "true");
+            }
             CustomDispatcher::async_open(url, 
                 boost::bind(&RtspDispatcher::handle_open, this, boost::ref(os), resp, _1));
         }
