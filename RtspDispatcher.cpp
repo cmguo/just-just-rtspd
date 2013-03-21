@@ -130,7 +130,7 @@ namespace ppbox
             os <<  "v=0\r\n";
             os << "o=- 1322720027229880 1 IN IP4 192.168.1.100\r\n";
             os << "s=Session streamed by PPBOX\r\n";
-            os << "i=" << "info.name" << "\r\n";
+            os << "i=" << info.name << "\r\n";
             //os << "c=IN IP4 " << "0.0.0.0" << "\r\n";
             os << "t=0 0\r\n";
             if (info.type == ppbox::data::MediaInfo::live) {
