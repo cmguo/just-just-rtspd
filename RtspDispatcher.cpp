@@ -127,11 +127,11 @@ namespace ppbox
             std::ostream os(&os_sdp);
 
             //×ésdp
-            os <<  "v=0\r\n";
+            os << "v=0\r\n";
             os << "o=- 1322720027229880 1 IN IP4 192.168.1.100\r\n";
             os << "s=Session streamed by PPBOX\r\n";
             os << "i=" << info.name << "\r\n";
-            //os << "c=IN IP4 " << "0.0.0.0" << "\r\n";
+            os << "c=IN IP4 " << "0.0.0.0" << "\r\n";
             os << "t=0 0\r\n";
             if (info.type == ppbox::data::MediaInfo::live) {
                 os << "a=type:broadcast\r\n";
@@ -142,7 +142,6 @@ namespace ppbox
                 os << "a=range:npt=0.000-" << (float)info.duration / 1000.0 << "\r\n";
             }
             os << "a=control:*" << "\r\n";
-            os << "c=IN IP4 " << "0.0.0.0" << "\r\n";
 
             os << info.format_data;
 
