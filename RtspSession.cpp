@@ -46,8 +46,6 @@ namespace ppbox
             }
         }
 
-        static void nop_deletor(void *) {}
-
         void RtspSession::local_process(
             response_type const & resp)
         {
