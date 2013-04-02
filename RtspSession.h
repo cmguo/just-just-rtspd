@@ -53,11 +53,10 @@ namespace ppbox
                 boost::system::error_code const & ec);
 
         private:
-            std::string path_;
-            RtspdModule& mgr_;
+            RtspdModule & mgr_;
             boost::uint32_t session_id_;
+            std::string content_base_;
             RtspDispatcher * dispatcher_;
-            util::protocol::rtsp_field::Range range_;
             boost::uint32_t play_count_;
             response_type post_resp_;
         };

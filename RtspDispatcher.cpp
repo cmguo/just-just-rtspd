@@ -44,7 +44,7 @@ namespace ppbox
             ppbox::dispatch::response_t  const & resp)
         {
             if (client.find("Samsung") != std::string::npos
-                || client.find("NexPlayer") != std::string::npos) {
+                && client.find("NexPlayer") != std::string::npos) {
                     url.param("mux.RtpH264.usedts", "true");
             }
             CustomDispatcher::async_open(url, 
@@ -81,7 +81,7 @@ namespace ppbox
             rtp_desc.from_data(info[stream_index].format_data);
             
             out_transport += ";ssrc=";
-            out_transport += framework::string::format(rtp_desc.ssrc);
+            out_transport += framework::string::Base16::encode(std::string((char const *)&rtp_desc.ssrc, 4));
 
             return true;
         }
@@ -178,6 +178,7 @@ namespace ppbox
                 ppbox::mux::RtpStreamDesc rtp_desc;
                 rtp_desc.from_data(streams[i].format_data);
                 if (rtp_desc.setup) {
+                    rtp_info.append("url=");
                     rtp_info.append(url);
                     rtp_info.append(rtp_desc.stream);
                     rtp_info.append(1, ';');

@@ -31,7 +31,7 @@ namespace ppbox
             , dispatcher_(NULL)
             , play_count_(0)
         {
-            static boost::uint32_t g_id = 0;
+            static boost::uint32_t g_id = rand();
             session_id_ = ++g_id;
 
             boost::system::error_code ec;
@@ -63,9 +63,10 @@ namespace ppbox
                 case RtspRequestHead::describe:
                     {
                         framework::string::Url url(request().head().path);
+                        content_base_ = url.to_string() + "/";
 
                         response().head()["Content-Type"] = "{application/sdp}";
-                        response().head()["Content-Base"] = "{" + url.to_string() + "/}";
+                        response().head()["Content-Base"] = "{" + content_base_ + "}";
 
                         dispatcher_ = mgr_.alloc_dispatcher(url, ec);
 
@@ -108,7 +109,7 @@ namespace ppbox
                     break;
                 case RtspRequestHead::play:
                     {
-                        response().head().rtp_info = request().head().path;
+                        response().head().rtp_info = content_base_;
 
                         if (request().head().range.is_initialized())
                             response().head().range =  request().head().range;

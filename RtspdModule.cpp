@@ -31,6 +31,7 @@ namespace ppbox
 
         boost::system::error_code RtspdModule::startup()
         {
+            srand(time(NULL));
             boost::system::error_code ec;
             start(addr_,ec);
             return ec;
