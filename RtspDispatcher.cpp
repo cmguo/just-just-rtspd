@@ -3,8 +3,9 @@
 #include "ppbox/rtspd/Common.h"
 #include "ppbox/rtspd/RtspDispatcher.h"
 #include "ppbox/rtspd/Transport.h"
+#include "ppbox/rtspd/RtpStreamDesc.h"
 
-#include <ppbox/mux/rtp/RtpStreamDesc.h>
+using namespace ppbox::dispatch;
 
 #include <util/protocol/rtsp/RtspFieldRange.h>
 #include <util/protocol/rtsp/RtspError.h>
@@ -62,7 +63,7 @@ namespace ppbox
             size_t stream_index = -1;
             parse2<size_t>(stream_index_str, stream_index);
 
-            ppbox::dispatch::Sink * sink = 
+            util::stream::Sink * sink = 
                 create_transport(rtsp_sock, in_transport, out_transport, ec);
             if (!CustomDispatcher::setup(stream_index, *sink, ec)) {
                 return false;
@@ -72,12 +73,12 @@ namespace ppbox
             //}
 
             //ื้ ssrc
-            std::vector<ppbox::avformat::StreamInfo> info;
+            std::vector<StreamInfo> info;
             if (!CustomDispatcher::get_stream_info(info, ec)) {
                 return false;
             }
 
-            ppbox::mux::RtpStreamDesc rtp_desc;
+            RtpStreamDesc rtp_desc;
             rtp_desc.from_data(info[stream_index].format_data);
             
             out_transport += ";ssrc=";
@@ -175,7 +176,7 @@ namespace ppbox
             for (size_t i = 0; i < streams.size(); ++i) {
                 if (streams[i].format_data.empty())
                     continue;
-                ppbox::mux::RtpStreamDesc rtp_desc;
+                RtpStreamDesc rtp_desc;
                 rtp_desc.from_data(streams[i].format_data);
                 if (rtp_desc.setup) {
                     rtp_info.append("url=");

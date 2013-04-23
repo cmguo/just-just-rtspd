@@ -3,10 +3,9 @@
 #ifndef _PPBOX_RTSPD_RTP_SINK_H_
 #define _PPBOX_RTSPD_RTP_SINK_H_
 
-#include <ppbox/mux/rtp/RtpPacket.h>
+#include <ppbox/rtspd/RtpPacket.h>
 
-#include <ppbox/dispatch/DispatchBase.h>
-#include <ppbox/dispatch/Sink.h>
+#include <util/stream/Sink.h>
 
 namespace ppbox
 {
@@ -15,13 +14,15 @@ namespace ppbox
 
         template <typename SocketType>
         class RtpSink
-            : public ppbox::dispatch::Sink
+            : public util::stream::Sink
         {
         protected:
             RtpSink(
+                boost::asio::io_service & io_svc, 
                 SocketType & rtp_socket, 
                 SocketType & rtcp_socket)
-                : rtp_socket_(rtp_socket)
+                : util::stream::Sink(io_svc)
+                , rtp_socket_(rtp_socket)
                 , rtcp_socket_(rtcp_socket)
                 , next_packet_(0)
             {
@@ -62,51 +63,60 @@ namespace ppbox
             }
 
         private:
-            virtual size_t write(
-                ppbox::avformat::Sample const & sample, 
+            virtual size_t private_write_some(
+                buffers_t const & buffers,
                 boost::system::error_code & ec)
             {
-                std::vector<ppbox::mux::RtpPacket> & packets = 
-                    *(std::vector<ppbox::mux::RtpPacket> *)(sample.context);
                 size_t total_size = 0;
-                for (size_t i = next_packet_; i < packets.size(); ++i) {
+                if (packets_.empty()) {
+                    assert(sizeof(packets_) == boost::asio::buffer_size(*--buffers.end()));
+                    std::vector<RtpPacket> const & packets = 
+                        *boost::asio::buffer_cast<std::vector<RtpPacket> const *>(*--buffers.end());
+                    packets_.swap(const_cast<std::vector<RtpPacket> &>(packets));
+                }
+                bool finish = true;
+                for (size_t i = next_packet_; i < packets_.size(); ++i) {
                     size_t bytes_send = 0;
-                    if (packets[i].mpt == 0) { // RTCP
+                    if (packets_[i].mpt == 0) { // RTCP
                         bytes_send = rtcp_socket_.send(
-                            sub_collection(sample.data, packets[i].buf_beg, packets[i].buf_end), 
+                            sub_collection(buffers, packets_[i].buf_beg, packets_[i].buf_end), 
                             0, ec);
                     } else {
                         bytes_send = rtp_socket_.send(
-                            sub_collection(sample.data, packets[i].buf_beg, packets[i].buf_end), 
+                            sub_collection(buffers, packets_[i].buf_beg, packets_[i].buf_end), 
                             0, ec);
                     }
                     total_size += bytes_send;
-                    if (ec || bytes_send < packets[i].size) {
+                    if (ec || bytes_send < packets_[i].size) {
+                        finish = false;
                         break;
                     }
                 }
-                if (total_size == sample.size) {
+                if (finish) {
+                    total_size += sizeof(packets_);
+                    packets_.clear();
                     next_packet_ = 0;
                 } else {
                     size_t total_size2 = total_size;
-                    for (size_t i = next_packet_; i < packets.size(); ++i) {
-                        if (packets[i].size > total_size2) {
+                    for (size_t i = next_packet_; i < packets_.size(); ++i) {
+                        if (packets_[i].size > total_size2) {
                             next_packet_ = i;
-                            packets[i].size -= total_size2;
-                            for (size_t j = packets[i].buf_beg; j < packets[i].buf_end; ++j) {
-                                if (boost::asio::buffer_size(sample.data[j]) > total_size2) {
-                                    packets[i].buf_beg = j;
-                                    for (size_t k = i; k < packets.size(); ++k) {
-                                        packets[k].buf_beg -= j;
-                                        packets[k].buf_end -= j;
+                            packets_[i].size -= total_size2;
+                            buffers_t::const_iterator iter = buffers.begin() + packets_[i].buf_beg;
+                            for (size_t j = packets_[i].buf_beg; j < packets_[i].buf_end; ++j, ++iter) {
+                                if (boost::asio::buffer_size(*iter) > total_size2) {
+                                    packets_[i].buf_beg = j;
+                                    for (size_t k = i; k < packets_.size(); ++k) {
+                                        packets_[k].buf_beg -= j;
+                                        packets_[k].buf_end -= j;
                                     }
                                     break;
                                 }
-                                total_size2 -= boost::asio::buffer_size(sample.data[j]);
+                                total_size2 -= boost::asio::buffer_size(*iter);
                             }
                             break;
                         }
-                        total_size2 -= packets[i].size;
+                        total_size2 -= packets_[i].size;
                     }
                 }
                 return total_size;
@@ -115,6 +125,7 @@ namespace ppbox
         private:
             SocketType & rtp_socket_;
             SocketType & rtcp_socket_;
+            std::vector<RtpPacket> packets_;
             size_t next_packet_;
         };
 

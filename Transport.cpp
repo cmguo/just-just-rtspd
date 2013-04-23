@@ -36,7 +36,7 @@ namespace ppbox
             std::string const find_;
         };
 
-        ppbox::dispatch::Sink * create_transport(
+        util::stream::Sink * create_transport(
             boost::asio::ip::tcp::socket & rtsp_socket, 
             std::string const & in_transport, 
             std::string & out_transport, 
@@ -46,7 +46,7 @@ namespace ppbox
             slice<std::string>(in_transport, std::back_inserter(vec_t), ",", "", "");
             std::vector<std::string> vec;
             slice<std::string>(vec_t[0], std::back_inserter(vec), ";");
-            ppbox::dispatch::Sink * sink = NULL;
+            util::stream::Sink * sink = NULL;
             if (vec[0] == "RTP/AVP" || vec[0] == "RTP/AVP/UDP") {
                 std::vector<std::string>::iterator iter = 
                     std::find_if(vec.begin(), vec.end(), find_parameter("client_port="));

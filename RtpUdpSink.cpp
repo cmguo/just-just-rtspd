@@ -13,7 +13,7 @@ namespace ppbox
             boost::uint16_t client_port[2], 
             boost::uint16_t server_port[2], 
             boost::system::error_code & ec)
-            : RtpSink<boost::asio::ip::udp::socket>(rtp_socket_, rtcp_socket_)
+            : RtpSink<boost::asio::ip::udp::socket>(rtsp_socket.get_io_service(), rtp_socket_, rtcp_socket_)
             , rtp_socket_(rtsp_socket.get_io_service())
             , rtcp_socket_(rtsp_socket.get_io_service())
         {

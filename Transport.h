@@ -12,7 +12,7 @@ namespace ppbox
     namespace rtspd
     {
 
-        extern ppbox::dispatch::Sink * create_transport(
+        extern util::stream::Sink * create_transport(
                 boost::asio::ip::tcp::socket & rtsp_socket, 
                 std::string const & in_transport, 
                 std::string & out_transport, 

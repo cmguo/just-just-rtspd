@@ -4,6 +4,7 @@
 #include "ppbox/rtspd/RtspdModule.h"
 #include "ppbox/rtspd/RtspDispatcher.h"
 #include "ppbox/rtspd/RtspSession.h"
+#include "ppbox/rtspd/RtpMuxerTypes.h"
 
 #include <ppbox/dispatch/DispatchModule.h>
 
