@@ -34,8 +34,8 @@ namespace ppbox
             std::vector<Transfer *> & transfers)
         {
             Transfer * transfer = NULL;
-            if (info.type == MEDIA_TYPE_VIDE) {
-                if (info.sub_type == VIDEO_TYPE_AVC1) {
+            if (info.type == StreamType::VIDE) {
+                if (info.sub_type == VideoSubType::AVC1) {
                     if (info.format_type == FormatType::video_avc_packet) {
                         transfer = new H264PackageSplitTransfer();
                         transfers.push_back(transfer);
@@ -51,12 +51,12 @@ namespace ppbox
                 RtpTransfer * rtp_transfer = new RtpH264Transfer;
                 transfers.push_back(rtp_transfer);
                 add_rtp_transfer(rtp_transfer);
-            } else if (MEDIA_TYPE_AUDI == info.type){
+            } else if (StreamType::AUDI == info.type){
                 RtpTransfer * rtp_transfer = NULL;
-                if (info.sub_type == AUDIO_TYPE_MP1A) {
+                if (info.sub_type == AudioSubType::MP1A) {
                     rtp_transfer = new RtpMpegAudioTransfer;
-                } else if (info.sub_type == AUDIO_TYPE_MP4A) {
-                    if (info.format_type == FormatType::audio_aac_adts) {
+                } else if (info.sub_type == AudioSubType::MP4A) {
+                    if (info.format_type == FormatType::audio_adts) {
                         transfer = new MpegAudioAdtsDecodeTransfer();
                         transfers.push_back(transfer);
                     }

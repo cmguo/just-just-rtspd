@@ -39,7 +39,7 @@ namespace ppbox
             //RtpTransfer::transfer(info);
 
             std::string sdp;
-            if (info.type == MEDIA_TYPE_VIDE) {
+            if (info.type == StreamType::VIDE) {
                 sdp = "m=video 0 RTP/AVP 96\r\n";
             } else {
                 sdp = "m=audio 0 RTP/AVP 96\r\n";

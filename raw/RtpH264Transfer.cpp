@@ -148,7 +148,7 @@ namespace ppbox
         void RtpH264Transfer::before_seek(
             Sample & sample)
         {
-            if (sample.flags & sample.sync) {
+            if (sample.flags & sample.f_sync) {
                 sps_pps_sent_ = false;
             }
         }
