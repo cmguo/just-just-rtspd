@@ -13,8 +13,8 @@
 #include <ppbox/mux/transfer/MpegAudioAdtsDecodeTransfer.h>
 using namespace ppbox::mux;
 
-#include <ppbox/avformat/Format.h>
-using namespace ppbox::avformat;
+#include <ppbox/avcodec/Format.h>
+using namespace ppbox::avcodec;
 
 namespace ppbox
 {

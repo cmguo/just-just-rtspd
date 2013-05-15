@@ -6,8 +6,8 @@
 #include <ppbox/mux/asf/AsfTransfer.h>
 using namespace ppbox::mux;
 
-#include <ppbox/avformat/Format.h>
-using namespace ppbox::avformat;
+#include <ppbox/avcodec/Format.h>
+using namespace ppbox::avcodec;
 
 #include <framework/string/Format.h>
 #include <framework/string/Base64.h>

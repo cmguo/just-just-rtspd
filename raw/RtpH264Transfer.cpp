@@ -3,10 +3,10 @@
 #include "ppbox/rtspd/Common.h"
 #include "ppbox/rtspd/raw/RtpH264Transfer.h"
 
-#include <ppbox/avformat/codec/avc/AvcCodec.h>
-#include <ppbox/avformat/codec/avc/AvcConfig.h>
-#include <ppbox/avformat/codec/avc/AvcNaluBuffer.h>
-using namespace ppbox::avformat;
+#include <ppbox/avcodec/avc/AvcCodec.h>
+#include <ppbox/avcodec/avc/AvcConfig.h>
+#include <ppbox/avcodec/avc/AvcNaluBuffer.h>
+using namespace ppbox::avcodec;
 
 #include <framework/string/Base16.h>
 #include <framework/string/Base64.h>

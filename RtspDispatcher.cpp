@@ -156,7 +156,7 @@ namespace ppbox
             boost::system::error_code ec)
         {
             ppbox::data::StreamStatus status;
-            std::vector<ppbox::avformat::StreamInfo> streams;
+            std::vector<ppbox::avbase::StreamInfo> streams;
 
             if (!ec) {
                 CustomDispatcher::get_stream_status(status, ec);
