@@ -3,8 +3,9 @@
 #include "ppbox/rtspd/Common.h"
 #include "ppbox/rtspd/raw/RtpH264Transfer.h"
 
-#include <ppbox/avcodec/avc/AvcCodec.h>
+#include <ppbox/avcodec/avc/AvcConfigHelper.h>
 #include <ppbox/avcodec/avc/AvcConfig.h>
+#include <ppbox/avcodec/avc/AvcNaluHelper.h>
 #include <ppbox/avcodec/avc/AvcNaluBuffer.h>
 using namespace ppbox::avcodec;
 
@@ -46,9 +47,9 @@ namespace ppbox
             using namespace framework::string;
             std::string map_id_str = format(rtp_head_.mpt);
 
-            AvcCodec & codec = *(AvcCodec *)info.codec.get();
-            std::vector<boost::uint8_t> sps_data = codec.config().sequenceParameterSetNALUnit[0];
-            std::vector<boost::uint8_t> pps_data = codec.config().pictureParameterSetNALUnit[0];
+            AvcConfigHelper const & config = *(AvcConfigHelper *)info.context;
+            std::vector<boost::uint8_t> sps_data = config.data().sequenceParameterSetNALUnit[0];
+            std::vector<boost::uint8_t> pps_data = config.data().pictureParameterSetNALUnit[0];
 
             boost::uint8_t const * profile_level_id = &sps_data.front() + 1;
 
@@ -86,23 +87,23 @@ namespace ppbox
                 StreamInfo const & media = *(StreamInfo const *)sample.stream_info;
 
                 sps_pps_sent_ = true;
-                AvcConfig const & avc_config = ((AvcCodec const *)media.codec.get())->config();
+                AvcConfigHelper const & config = *(AvcConfigHelper *)media.context;
 
-                for (size_t i = 0; i < avc_config.sequenceParameterSetNALUnit.size(); ++i) {
-                    begin_packet(false, rtp_time, avc_config.sequenceParameterSetNALUnit[i].size());
-                    push_buffers(boost::asio::buffer(avc_config.sequenceParameterSetNALUnit[i]));
+                for (size_t i = 0; i < config.data().sequenceParameterSetNALUnit.size(); ++i) {
+                    begin_packet(false, rtp_time, config.data().sequenceParameterSetNALUnit[i].size());
+                    push_buffers(boost::asio::buffer(config.data().sequenceParameterSetNALUnit[i]));
                     finish_packet();
                 }
 
-                for (size_t i = 0; i < avc_config.pictureParameterSetNALUnit.size(); ++i) {
-                    begin_packet(false, rtp_time, avc_config.pictureParameterSetNALUnit[i].size());
-                    push_buffers(boost::asio::buffer(avc_config.pictureParameterSetNALUnit[i]));
+                for (size_t i = 0; i < config.data().pictureParameterSetNALUnit.size(); ++i) {
+                    begin_packet(false, rtp_time, config.data().pictureParameterSetNALUnit[i].size());
+                    push_buffers(boost::asio::buffer(config.data().pictureParameterSetNALUnit[i]));
                     finish_packet();
                 }
             }
 
-            std::vector<NaluBuffer> & nalus = 
-                *(std::vector<NaluBuffer> *)sample.context;
+            AvcNaluHelper & helper = *(AvcNaluHelper *)sample.context;
+            std::vector<NaluBuffer> & nalus = helper.nalus();
             for (size_t i = 0; i < nalus.size(); ++i) {
                 NaluBuffer & nalu = nalus[i];
                 size_t l = nalu.size;
