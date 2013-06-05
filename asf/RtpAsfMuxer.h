@@ -29,7 +29,7 @@ namespace ppbox
         private:
             virtual void add_stream(
                 StreamInfo & info, 
-                std::vector<Transfer *> & transfers);
+                FilterPipe & pipe);
 
         private:
             ppbox::mux::AsfMuxer asf_mux_;

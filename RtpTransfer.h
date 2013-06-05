@@ -5,7 +5,7 @@
 
 #include "ppbox/rtspd/RtpPacket.h"
 
-#include <ppbox/mux/transfer/TimeScaleTransfer.h>
+#include <ppbox/mux/Transfer.h>
 
 #include <framework/system/BytesOrder.h>
 #include <framework/system/ScaleTransform.h>
@@ -19,13 +19,12 @@ namespace ppbox
         using ppbox::mux::Sample;
 
         class RtpTransfer
-            : public ppbox::mux::TimeScaleTransfer
+            : public ppbox::mux::Transfer
         {
         public:
             RtpTransfer(
                 char const * const name, 
-                boost::uint8_t type, 
-                boost::uint32_t time_scale = 1);
+                boost::uint8_t type);
 
             virtual ~RtpTransfer();
 
@@ -34,7 +33,10 @@ namespace ppbox
                 framework::configure::Config & conf);
 
         public:
-            virtual void on_seek(
+            virtual void transfer(
+                StreamInfo & info);
+
+            virtual void reset(
                 boost::uint64_t time);
 
             virtual void setup();
@@ -77,6 +79,9 @@ namespace ppbox
 
         protected:
             void push_rtcp_packet();
+
+        protected:
+            boost::uint32_t time_scale_;
 
         protected:
             char const * const name_;

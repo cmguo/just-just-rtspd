@@ -24,13 +24,12 @@ namespace ppbox
 
         void RtpRawMuxer::add_stream(
             StreamInfo & info, 
-            std::vector<Transfer *> & transfers)
+            FilterPipe & pipe)
         {
-            Transfer * transfer = NULL;
             if (info.type == StreamType::VIDE) {
                 if (info.sub_type == VideoSubType::AVC1) {
                     RtpTransfer * rtp_transfer = new RtpH264Transfer;
-                    transfers.push_back(rtp_transfer);
+                    pipe.push_back(rtp_transfer);
                     add_rtp_transfer(rtp_transfer);
                 }
             } else if (StreamType::AUDI == info.type){
@@ -40,7 +39,7 @@ namespace ppbox
                 } else if (info.sub_type == AudioSubType::MP4A) {
                     rtp_transfer = new RtpMpeg4GenericTransfer;
                 }
-                transfers.push_back(rtp_transfer);
+                pipe.push_back(rtp_transfer);
                 add_rtp_transfer(rtp_transfer);
             } else {
                 add_rtp_transfer(NULL);

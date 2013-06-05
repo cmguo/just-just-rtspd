@@ -8,10 +8,8 @@ namespace ppbox
     namespace rtspd
     {
 
-        static boost::uint32_t const TIME_SCALE = 90000;
-
         RtpMpegAudioTransfer::RtpMpegAudioTransfer()
-            : RtpTransfer("RtpAudioMpegTransfer", 97, TIME_SCALE)
+            : RtpTransfer("RtpAudioMpegTransfer", 97)
         {
             header_[0] = 0;
             header_[1] = 0;
@@ -30,7 +28,7 @@ namespace ppbox
 
             std::string map_id_str = format(rtp_head_.mpt);
             rtp_info_.sdp = "m=audio 0 RTP/AVP " + map_id_str + "\r\n";
-            rtp_info_.sdp += "a=rtpmap:" + map_id_str + " mpa/" + format(TIME_SCALE) 
+            rtp_info_.sdp += "a=rtpmap:" + map_id_str + " mpa/" + format(time_scale_) 
                 + "/" + format(info.audio_format.channel_count)
                 + "\r\n";
             rtp_info_.sdp += "a=control:track" + format(info.index) + "\r\n";
@@ -41,8 +39,6 @@ namespace ppbox
         void RtpMpegAudioTransfer::transfer(
             Sample & sample)
         {
-            RtpTransfer::transfer(sample); // call TimeScaleTransfer::transfer
-
             RtpTransfer::begin(sample);
 
             begin_packet(true, sample.dts, 4 + sample.size);

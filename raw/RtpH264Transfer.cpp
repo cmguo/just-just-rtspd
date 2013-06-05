@@ -17,10 +17,8 @@ namespace ppbox
     namespace rtspd
     {
 
-        static boost::uint32_t const TIME_SCALE = 90000;
-
         RtpH264Transfer::RtpH264Transfer()
-            : RtpTransfer("RtpH264", 96, TIME_SCALE)
+            : RtpTransfer("RtpH264", 96)
             , mtu_size_(1436)
             , sps_pps_sent_(false)
             , use_dts_(false)
@@ -42,7 +40,7 @@ namespace ppbox
         void RtpH264Transfer::transfer(
             StreamInfo & info)
         {
-            RtpTransfer::transfer(info); // call TimeScaleTransfer::transfer
+            RtpTransfer::transfer(info);
 
             using namespace framework::string;
             std::string map_id_str = format(rtp_head_.mpt);
@@ -59,7 +57,7 @@ namespace ppbox
             std::string pps = Base64::encode(&pps_data.front(), pps_data.size());
 
             rtp_info_.sdp = "m=video 0 RTP/AVP " + map_id_str + "\r\n";
-            rtp_info_.sdp += "a=rtpmap:" + map_id_str + " H264/" + format(TIME_SCALE) + "\r\n";
+            rtp_info_.sdp += "a=rtpmap:" + map_id_str + " H264/" + format(time_scale_) + "\r\n";
             rtp_info_.sdp += "a=framesize:" + map_id_str + " " + format(info.video_format.width)
                 + "-" + format(info.video_format.height) + "\r\n";
             rtp_info_.sdp += "a=cliprect:0,0," 
@@ -76,18 +74,17 @@ namespace ppbox
         void RtpH264Transfer::transfer(
             Sample & sample)
         {
-            RtpTransfer::transfer(sample); // call TimeScaleTransfer::transfer
-
             boost::uint64_t rtp_time = use_dts_ ? sample.dts : sample.dts + sample.cts_delta;
 
             RtpTransfer::begin(sample);
 
             // add two sps pps rtp packet
             if (!sps_pps_sent_) {
-                StreamInfo const & media = *(StreamInfo const *)sample.stream_info;
+                StreamInfo const & info = *(StreamInfo const *)sample.stream_info;
 
                 sps_pps_sent_ = true;
-                AvcConfigHelper const & config = *(AvcConfigHelper *)media.context;
+                // info.context is AvcConfigHelper, set by AvcPacketSplitter or AvcByteStreamSplitter
+                AvcConfigHelper const & config = *(AvcConfigHelper *)info.context;
 
                 for (size_t i = 0; i < config.data().sequenceParameterSetNALUnit.size(); ++i) {
                     begin_packet(false, rtp_time, config.data().sequenceParameterSetNALUnit[i].size());
@@ -102,6 +99,7 @@ namespace ppbox
                 }
             }
 
+            // sample.context is AvcNaluHelper, set by AvcPacketSplitter or AvcByteStreamSplitter
             AvcNaluHelper & helper = *(AvcNaluHelper *)sample.context;
             std::vector<NaluBuffer> & nalus = helper.nalus();
             for (size_t i = 0; i < nalus.size(); ++i) {

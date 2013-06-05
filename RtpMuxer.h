@@ -15,7 +15,7 @@ namespace ppbox
         using ppbox::mux::StreamInfo;
         using ppbox::mux::MediaInfo;
         using ppbox::mux::Sample;
-        using ppbox::mux::Transfer;
+        using ppbox::mux::FilterPipe;
 
         class RtpTransfer;
 
@@ -45,7 +45,7 @@ namespace ppbox
         protected:
             void add_stream(
                 StreamInfo & info, 
-                std::vector<Transfer *> & transfers);
+                FilterPipe & pipe);
 
             void file_header(
                 Sample & sample);

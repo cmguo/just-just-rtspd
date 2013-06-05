@@ -16,14 +16,11 @@ namespace ppbox
         public:
             RtpFormat();
 
-        public:
-            static boost::uint32_t const FOURCC = MAKE_FOURC_TYPE('r', 't', 'p', '-');
-
         private:
             static ppbox::avformat::CodecInfo const codecs_[];
         };
 
-        PPBOX_REGISTER_FORMAT(RtpFormat::FOURCC, RtpFormat);
+        PPBOX_REGISTER_FORMAT("rtp-raw", RtpFormat);
 
     } // namespace rtspd
 } // namespace ppbox

@@ -32,7 +32,7 @@ namespace ppbox
             std::string map_id_str = format(rtp_head_.mpt);
             rtp_info_.sdp = "m=audio 0 RTP/AVP " + map_id_str + "\r\n";
             rtp_info_.sdp += "a=rtpmap:" + map_id_str + " mpeg4-generic/" 
-                + format(scale_out())
+                + format(time_scale_)
                 + "/" + format(info.audio_format.channel_count) + "\r\n";
             rtp_info_.sdp += "a=fmtp:" + map_id_str 
                 + " streamType=5"
@@ -52,8 +52,6 @@ namespace ppbox
         void RtpMpeg4GenericTransfer::transfer(
             Sample & sample)
         {
-            RtpTransfer::transfer(sample); // call TimeScaleTransfer::transfer
-
             au_header_section_[2] =  (boost::uint8_t)(sample.size >> 5);
             au_header_section_[3] = (boost::uint8_t)((sample.size << 3) /*| (index_++ & 0x07)*/);
 

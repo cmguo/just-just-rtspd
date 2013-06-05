@@ -4,7 +4,7 @@
 #include "ppbox/rtspd/ts/RtpTsMuxer.h"
 #include "ppbox/rtspd/ts/RtpTsTransfer.h"
 
-#include <ppbox/mux/transfer/MergeTransfer.h>
+#include <ppbox/mux/filter/MergeFilter.h>
 using namespace ppbox::mux;
 
 namespace ppbox
@@ -16,6 +16,7 @@ namespace ppbox
             : RtpMuxer(&ts_mux_)
             , rtp_ts_transfer_(NULL)
         {
+            format("ts");
         }
 
         RtpTsMuxer::~RtpTsMuxer()
@@ -28,15 +29,14 @@ namespace ppbox
 
         void RtpTsMuxer::add_stream(
             StreamInfo & info, 
-            std::vector<Transfer *> & transfers)
+            FilterPipe & pipe)
         {
-            RtpMuxer::add_stream(info, transfers);
+            RtpMuxer::add_stream(info, pipe);
             if (rtp_ts_transfer_ == NULL) {
                 rtp_ts_transfer_ = new RtpTsTransfer;
                 add_rtp_transfer(rtp_ts_transfer_);
             }
-            Transfer * transfer = new MergeTransfer(rtp_ts_transfer_);
-            transfers.push_back(transfer);
+            pipe.push_back(new MergeFilter(rtp_ts_transfer_));
         }
 
         void RtpTsMuxer::file_header(

@@ -14,9 +14,9 @@ namespace ppbox
     {
 
         ppbox::avformat::CodecInfo const RtpFormat::codecs_[] = {
-            {StreamType::VIDE,  (intptr_t)"H264",           VideoSubType::AVC1, StreamFormatType::none}, 
-            {StreamType::AUDI,  (intptr_t)"mpeg4-generic",  AudioSubType::MP4A, AacFormatType::raw}, 
-            {StreamType::AUDI,  (intptr_t)"mpa",            AudioSubType::MP1A, StreamFormatType::none}, 
+            {StreamType::VIDE,  (intptr_t)"H264",           VideoSubType::AVC1, StreamFormatType::none, 90000}, 
+            {StreamType::AUDI,  (intptr_t)"mpeg4-generic",  AudioSubType::MP4A, AacFormatType::raw,     1}, 
+            {StreamType::AUDI,  (intptr_t)"mpa",            AudioSubType::MP1A, StreamFormatType::none, 90000}, 
         };
 
         RtpFormat::RtpFormat()

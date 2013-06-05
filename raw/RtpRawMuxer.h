@@ -21,7 +21,7 @@ namespace ppbox
         private:
             void add_stream(
                 StreamInfo & info, 
-                std::vector<Transfer *> & transfers);
+                FilterPipe & pipe);
         };
 
         PPBOX_REGISTER_MUXER("rtp-raw", RtpRawMuxer);

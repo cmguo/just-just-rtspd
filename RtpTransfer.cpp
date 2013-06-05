@@ -13,9 +13,8 @@ namespace ppbox
 
         RtpTransfer::RtpTransfer(
             char const * const name, 
-            boost::uint8_t type, 
-            boost::uint32_t time_scale)
-            : TimeScaleTransfer(time_scale)
+            boost::uint8_t type)
+            : time_scale_(0)
             , name_(name)
             , total_size_(0)
             , rtcp_interval_(3000)
@@ -58,17 +57,23 @@ namespace ppbox
             rtp_info_.setup = true;
         }
 
-        void RtpTransfer::on_seek(
+        void RtpTransfer::transfer(
+            StreamInfo & info)
+        {
+            time_scale_ = info.time_scale;
+        }
+
+        void RtpTransfer::reset(
             boost::uint64_t time)
         {
             if (!packets_.empty()) {
                 boost::uint32_t last_timestamp = 
                     framework::system::BytesOrder::host_to_big_endian(packets_[0].timestamp);
                 // add 8 seconds to keep distance from timestamp before
-                rtp_info_.timestamp = last_timestamp + (boost::uint32_t)scale_out() * 8;
+                rtp_info_.timestamp = last_timestamp + time_scale_ * 8;
             }
             rtp_head_.timestamp = rtp_info_.timestamp 
-                - (boost::uint32_t)framework::system::ScaleTransform::static_transfer(1000, scale_out(), time);
+                - (boost::uint32_t)framework::system::ScaleTransform::static_transfer(1000, time_scale_, time);
             rtp_info_.sequence = rtp_head_.sequence;
             rtp_info_.seek_time = (boost::uint32_t)time;
 
@@ -77,8 +82,6 @@ namespace ppbox
             if (rtcp_interval_) {
                 next_time_ = time;
             }
-
-            TimeScaleTransfer::on_seek(time);
         }
 
         void RtpTransfer::begin(

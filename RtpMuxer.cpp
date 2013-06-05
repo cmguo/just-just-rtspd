@@ -49,10 +49,10 @@ namespace ppbox
 
         void RtpMuxer::add_stream(
             StreamInfo & info, 
-            std::vector<Transfer *> & transfers)
+            FilterPipe & pipe)
         {
             if (base_) {
-                ((RtpMuxer *)base_)->add_stream(info, transfers); // 强制转换为RtpMuxer，是为了访问MuxerBase的protected成员
+                ((RtpMuxer *)base_)->add_stream(info, pipe); // 强制转换为RtpMuxer，是为了访问MuxerBase的protected成员
             }
         }
 

@@ -4,7 +4,7 @@
 #include "ppbox/rtspd/asf/RtpAsfMuxer.h"
 #include "ppbox/rtspd/asf/RtpAsfTransfer.h"
 
-#include <ppbox/mux/transfer/MergeTransfer.h>
+#include <ppbox/mux/filter/MergeFilter.h>
 using namespace ppbox::mux;
 
 namespace ppbox
@@ -16,6 +16,7 @@ namespace ppbox
             : RtpMuxer(&asf_mux_)
             , rtp_asf_transfer_(NULL)
         {
+            format("asf");
         }
 
         RtpAsfMuxer::~RtpAsfMuxer()
@@ -28,15 +29,14 @@ namespace ppbox
 
         void RtpAsfMuxer::add_stream(
             StreamInfo & info, 
-            std::vector<Transfer *> & transfers)
+            FilterPipe & pipe)
         {
-            RtpMuxer::add_stream(info, transfers);
+            RtpMuxer::add_stream(info, pipe);
             if (rtp_asf_transfer_ == NULL) {
                 rtp_asf_transfer_ = new RtpAsfTransfer;
                 add_rtp_transfer(rtp_asf_transfer_);
             }
-            Transfer * transfer = new MergeTransfer(rtp_asf_transfer_);
-            transfers.push_back(transfer);
+            pipe.push_back(new MergeFilter(rtp_asf_transfer_));
         }
 
         void RtpAsfMuxer::media_info(
