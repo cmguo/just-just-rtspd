@@ -29,8 +29,8 @@ namespace ppbox
             virtual void transfer(
                 Sample & sample);
 
-            virtual void before_seek(
-                Sample & sample);
+            virtual void on_event(
+                MuxEvent const & event);
 
         private:
             boost::uint32_t mtu_size_;

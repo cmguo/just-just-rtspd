@@ -17,6 +17,7 @@ namespace ppbox
 
         using ppbox::mux::StreamInfo;
         using ppbox::mux::Sample;
+        using ppbox::mux::MuxEvent;
 
         class RtpTransfer
             : public ppbox::mux::Transfer
@@ -36,8 +37,8 @@ namespace ppbox
             virtual void transfer(
                 StreamInfo & info);
 
-            virtual void reset(
-                boost::uint64_t time);
+            virtual void on_event(
+                MuxEvent const & event);
 
             virtual void setup();
 

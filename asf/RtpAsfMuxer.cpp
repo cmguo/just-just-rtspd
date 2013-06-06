@@ -36,7 +36,7 @@ namespace ppbox
                 rtp_asf_transfer_ = new RtpAsfTransfer;
                 add_rtp_transfer(rtp_asf_transfer_);
             }
-            pipe.push_back(new MergeFilter(rtp_asf_transfer_));
+            pipe.insert(new MergeFilter(rtp_asf_transfer_));
         }
 
         void RtpAsfMuxer::media_info(

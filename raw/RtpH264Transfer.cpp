@@ -144,10 +144,10 @@ namespace ppbox
             RtpTransfer::finish(sample);
         }
 
-        void RtpH264Transfer::before_seek(
-            Sample & sample)
+        void RtpH264Transfer::on_event(
+            MuxEvent const & event)
         {
-            if (sample.flags & sample.f_sync) {
+            if (event.type == event.begin_reset) {
                 sps_pps_sent_ = false;
             }
         }

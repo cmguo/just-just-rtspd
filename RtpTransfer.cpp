@@ -63,9 +63,12 @@ namespace ppbox
             time_scale_ = info.time_scale;
         }
 
-        void RtpTransfer::reset(
-            boost::uint64_t time)
+        void RtpTransfer::on_event(
+            MuxEvent const & event)
         {
+            if (event.type != event.finish_seek)
+                return;
+            boost::uint64_t time = event.time;
             if (!packets_.empty()) {
                 boost::uint32_t last_timestamp = 
                     framework::system::BytesOrder::host_to_big_endian(packets_[0].timestamp);

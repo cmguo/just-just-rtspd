@@ -36,7 +36,7 @@ namespace ppbox
                 rtp_ts_transfer_ = new RtpTsTransfer;
                 add_rtp_transfer(rtp_ts_transfer_);
             }
-            pipe.push_back(new MergeFilter(rtp_ts_transfer_));
+            pipe.insert(new MergeFilter(rtp_ts_transfer_));
         }
 
         void RtpTsMuxer::file_header(
