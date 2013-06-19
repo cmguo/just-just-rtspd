@@ -147,6 +147,7 @@ namespace ppbox
         void RtpH264Transfer::on_event(
             MuxEvent const & event)
         {
+            RtpTransfer::on_event(event);
             if (event.type == event.begin_reset) {
                 sps_pps_sent_ = false;
             }
