@@ -5,7 +5,7 @@
 
 #include "ppbox/rtspd/RtpPacket.h"
 
-#include <ppbox/mux/MuxerBase.h>
+#include <ppbox/mux/Muxer.h>
 
 namespace ppbox
 {
@@ -20,7 +20,7 @@ namespace ppbox
         class RtpTransfer;
 
         class RtpMuxer
-            : public ppbox::mux::MuxerBase
+            : public ppbox::mux::Muxer
         {
         public:
             RtpMuxer();

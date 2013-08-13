@@ -82,7 +82,7 @@ namespace ppbox
         void RtpMuxer::media_info(
             MediaInfo & info) const
         {
-            MuxerBase::media_info(info);
+            Muxer::media_info(info);
             for(boost::uint32_t i = 0; i < rtp_transfers_.size(); ++i) {
                 if (rtp_transfers_[i] == NULL)
                     continue;
@@ -93,7 +93,7 @@ namespace ppbox
         void RtpMuxer::stream_info(
             std::vector<StreamInfo> & streams) const
         {
-            MuxerBase::stream_info(streams);
+            Muxer::stream_info(streams);
             for(boost::uint32_t i = 0; i < rtp_transfers_.size(); ++i) {
                 if (rtp_transfers_[i] == NULL)
                     continue;
