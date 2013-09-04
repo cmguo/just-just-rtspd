@@ -54,7 +54,7 @@ namespace ppbox
         void RtspdModule::free_dispatcher(
             RtspDispatcher * dispatcher)
         {
-            dispatch_module_.free_dispatcher(&dispatcher->get_dispatcher());
+            dispatch_module_.free_dispatcher(dispatcher->detach());
             delete dispatcher;
         }
 

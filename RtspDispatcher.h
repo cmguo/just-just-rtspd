@@ -56,12 +56,6 @@ namespace ppbox
                 ppbox::dispatch::response_t const & seek_resp, 
                 ppbox::dispatch::response_t const & resp);
 
-        public:
-            ppbox::dispatch::DispatcherBase & get_dispatcher()
-            {
-                return dispatcher_;
-            }
-
         private:
             void handle_open(
                 boost::asio::streambuf& os_sdp, 

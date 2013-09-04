@@ -192,14 +192,14 @@ namespace ppbox
             }
             
             //Ìî³äRangeÖµ
-            float be = (float)status.time_range.beg / 1000.0;
-            float en = (float)status.time_range.end / 1000.0;
+            float be = (float)status.time_range.beg / 1000.0f;
+            float en = (float)status.time_range.end / 1000.0f;
 
             if (status.time_range.end != ppbox::data::invalid_size) {
-                en = (float)status.time_range.end / 1000.0;
+                en = (float)status.time_range.end / 1000.0f;
                 range[0] = rtsp_field::Range::Unit(be, en); 
             } else {
-                range[0] = rtsp_field::Range::Unit(be, be - 1.0);
+                range[0] = rtsp_field::Range::Unit(be, be - 1.0f);
             }
 
             resp(ec);
