@@ -19,7 +19,7 @@ namespace ppbox
             util::daemon::Daemon & daemon)
             : ppbox::common::CommonModuleBase<RtspdModule>(daemon, "RtspdModule")
             , framework::network::ServerManager<RtspSession, RtspdModule>(daemon.io_svc())
-            , addr_("0.0.0.0:5054")
+            , addr_("0.0.0.0:5054+")
             , dispatch_module_(util::daemon::use_module<ppbox::dispatch::DispatchModule>(get_daemon()))
         {
             daemon.config().register_module("RtspdModule")
