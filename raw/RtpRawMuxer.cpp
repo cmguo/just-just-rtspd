@@ -34,8 +34,11 @@ namespace ppbox
                 }
             } else if (StreamType::AUDI == info.type){
                 RtpTransfer * rtp_transfer = NULL;
-                if (info.sub_type == AudioSubType::MP1A) {
-                    rtp_transfer = new RtpMpegAudioTransfer;
+                if (info.sub_type == AudioSubType::MP1A
+                    || info.sub_type == AudioSubType::MP2A
+                    || info.sub_type == AudioSubType::MP2
+                    || info.sub_type == AudioSubType::MP3) {
+                        rtp_transfer = new RtpMpegAudioTransfer;
                 } else if (info.sub_type == AudioSubType::MP4A) {
                     rtp_transfer = new RtpMpeg4GenericTransfer;
                 }
