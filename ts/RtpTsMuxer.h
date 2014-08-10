@@ -5,7 +5,7 @@
 
 #include "ppbox/rtspd/RtpMuxer.h"
 
-#include <ppbox/mux/ts/TsMuxer.h>
+#include <ppbox/mux/mp2/TsMuxer.h>
 
 namespace ppbox
 {

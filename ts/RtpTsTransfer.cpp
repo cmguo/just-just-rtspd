@@ -6,7 +6,7 @@
 
 using namespace ppbox::mux;
 
-#include <ppbox/avformat/ts/TsPacket.h>
+#include <ppbox/avformat/mp2/TsPacket.h>
 using namespace ppbox::avformat;
 
 namespace ppbox
