@@ -27,7 +27,7 @@ namespace ppbox
             FilterPipe & pipe)
         {
             if (info.type == StreamType::VIDE) {
-                if (info.sub_type == VideoSubType::AVC1) {
+                if (info.sub_type == VideoSubType::AVC) {
                     RtpTransfer * rtp_transfer = new RtpH264Transfer;
                     pipe.insert(rtp_transfer);
                     add_rtp_transfer(rtp_transfer);
@@ -39,7 +39,7 @@ namespace ppbox
                     || info.sub_type == AudioSubType::MP2
                     || info.sub_type == AudioSubType::MP3) {
                         rtp_transfer = new RtpMpegAudioTransfer;
-                } else if (info.sub_type == AudioSubType::MP4A) {
+                } else if (info.sub_type == AudioSubType::AAC) {
                     rtp_transfer = new RtpMpeg4GenericTransfer;
                 }
                 pipe.insert(rtp_transfer);

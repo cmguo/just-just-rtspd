@@ -5,8 +5,8 @@
 
 #include <ppbox/avcodec/avc/AvcConfigHelper.h>
 #include <ppbox/avcodec/avc/AvcConfig.h>
-#include <ppbox/avcodec/avc/AvcNaluHelper.h>
-#include <ppbox/avcodec/avc/AvcNaluBuffer.h>
+#include <ppbox/avcodec/nalu/NaluHelper.h>
+#include <ppbox/avcodec/nalu/NaluBuffer.h>
 using namespace ppbox::avcodec;
 
 #include <framework/string/Base16.h>
@@ -99,8 +99,8 @@ namespace ppbox
                 }
             }
 
-            // sample.context is AvcNaluHelper, set by AvcPacketSplitter or AvcByteStreamSplitter
-            AvcNaluHelper & helper = *(AvcNaluHelper *)sample.context;
+            // sample.context is NaluHelper, set by AvcPacketSplitter or AvcByteStreamSplitter
+            NaluHelper & helper = *(NaluHelper *)sample.context;
             std::vector<NaluBuffer> & nalus = helper.nalus();
             for (size_t i = 0; i < nalus.size(); ++i) {
                 NaluBuffer & nalu = nalus[i];
