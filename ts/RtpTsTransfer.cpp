@@ -17,7 +17,7 @@ namespace ppbox
         static boost::uint32_t const TS_PACKETS_PER_RTP_PACKET = 7;
 
         RtpTsTransfer::RtpTsTransfer()
-            : RtpTransfer("RtpTs", 33)
+            : RtpTransfer("RtpTs", "MP2T", 33)
         {
         }
 
@@ -28,11 +28,15 @@ namespace ppbox
         void RtpTsTransfer::transfer(
             StreamInfo & info)
         {
-            RtpTransfer::transfer(info);
-
-            rtp_info_.sdp = "m=video 0 RTP/AVP 33\r\n";
-            rtp_info_.sdp += "a=rtpmap:33 MP2T/90000\r\n";
-            rtp_info_.sdp += "a=control:track-1\r\n";
+            boost::uint32_t stream_index = info.index;
+            info.index = boost::uint32_t(-1);
+            if (info.type == StreamType::VIDE) {
+                rtp_info_.sdp.clear();
+                RtpTransfer::transfer(info);
+            } else if (rtp_info_.sdp.empty()) {
+                RtpTransfer::transfer(info);
+            }
+            info.index = stream_index;
         }
 
         void RtpTsTransfer::transfer(

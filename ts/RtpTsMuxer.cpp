@@ -21,10 +21,8 @@ namespace ppbox
 
         RtpTsMuxer::~RtpTsMuxer()
         {
-            if (rtp_ts_transfer_) {
-                delete rtp_ts_transfer_;
-                rtp_ts_transfer_ = NULL;
-            }
+            // auto release by MergeFilter
+            rtp_ts_transfer_ = NULL;
         }
 
         void RtpTsMuxer::add_stream(

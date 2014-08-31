@@ -21,7 +21,7 @@ namespace ppbox
     {
 
         RtpAsfTransfer::RtpAsfTransfer()
-            : RtpTransfer("RtpAsf", 96)
+            : RtpTransfer("RtpAsf", "x-asf-pf", 96)
         {
             header_[0][0] = 0x40; // S = 0, L = 1, R = 0, D = 0. I = 0
             header_[0][1] = header_[0][2] = header_[0][3] = 0; // Length = 0
@@ -36,8 +36,6 @@ namespace ppbox
         void RtpAsfTransfer::transfer(
             StreamInfo & info)
         {
-            //RtpTransfer::transfer(info);
-
             std::string sdp;
             if (info.type == StreamType::VIDE) {
                 sdp = "m=video 0 RTP/AVP 96\r\n";
@@ -52,6 +50,8 @@ namespace ppbox
                 + framework::string::format(info.index)
                 + "\r\n";
             rtp_info_.sdp += sdp;
+
+            //RtpTransfer::transfer(info);
         }
 
         void RtpAsfTransfer::transfer(

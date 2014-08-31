@@ -21,10 +21,8 @@ namespace ppbox
 
         RtpAsfMuxer::~RtpAsfMuxer()
         {
-            if (rtp_asf_transfer_) {
-                delete rtp_asf_transfer_;
-                rtp_asf_transfer_ = NULL;
-            }
+            // auto release by MergeFilter
+            rtp_asf_transfer_ = NULL;
         }
 
         void RtpAsfMuxer::add_stream(

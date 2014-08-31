@@ -9,7 +9,7 @@ namespace ppbox
     {
 
         RtpMpegAudioTransfer::RtpMpegAudioTransfer()
-            : RtpTransfer("RtpAudioMpegTransfer", 97)
+            : RtpTransfer("RtpAudioMpegTransfer", "mpa", 97)
         {
             header_[0] = 0;
             header_[1] = 0;
@@ -22,18 +22,7 @@ namespace ppbox
         void RtpMpegAudioTransfer::transfer(
             StreamInfo & info)
         {
-            using namespace framework::string;
-
             RtpTransfer::transfer(info);
-
-            std::string map_id_str = format(rtp_head_.mpt);
-            rtp_info_.sdp = "m=audio 0 RTP/AVP " + map_id_str + "\r\n";
-            rtp_info_.sdp += "a=rtpmap:" + map_id_str + " mpa/" + format(time_scale_) 
-                + "/" + format(info.audio_format.channel_count)
-                + "\r\n";
-            rtp_info_.sdp += "a=control:track" + format(info.index) + "\r\n";
-
-            rtp_info_.stream_index = info.index;
         }
 
         void RtpMpegAudioTransfer::transfer(

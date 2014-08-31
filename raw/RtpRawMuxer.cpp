@@ -2,9 +2,14 @@
 
 #include "ppbox/rtspd/Common.h"
 #include "ppbox/rtspd/raw/RtpRawMuxer.h"
+
+#include <util/tools/ClassRegister.h>
+
 #include "ppbox/rtspd/raw/RtpMpeg4GenericTransfer.h"
 #include "ppbox/rtspd/raw/RtpMpegAudioTransfer.h"
 #include "ppbox/rtspd/raw/RtpH264Transfer.h"
+
+#include "ppbox/rtspd/raw/RtpFormat.h"
 
 #include <ppbox/avcodec/CodecType.h>
 using namespace ppbox::avcodec;
@@ -26,24 +31,17 @@ namespace ppbox
             StreamInfo & info, 
             FilterPipe & pipe)
         {
-            if (info.type == StreamType::VIDE) {
-                if (info.sub_type == VideoSubType::AVC) {
-                    RtpTransfer * rtp_transfer = new RtpH264Transfer;
+            RtpFormat rtp;
+            boost::system::error_code ec;
+            ppbox::avformat::CodecInfo const * codec = rtp.codec_from_codec(info.type, info.sub_type, ec);
+            if (codec) {
+                RtpTransfer * rtp_transfer = RtpTransferFactory::create((char const *)codec->stream_type, ec);
+                if (rtp_transfer) {
                     pipe.insert(rtp_transfer);
                     add_rtp_transfer(rtp_transfer);
+                } else {
+                    add_rtp_transfer(NULL);
                 }
-            } else if (StreamType::AUDI == info.type){
-                RtpTransfer * rtp_transfer = NULL;
-                if (info.sub_type == AudioSubType::MP1A
-                    || info.sub_type == AudioSubType::MP2A
-                    || info.sub_type == AudioSubType::MP2
-                    || info.sub_type == AudioSubType::MP3) {
-                        rtp_transfer = new RtpMpegAudioTransfer;
-                } else if (info.sub_type == AudioSubType::AAC) {
-                    rtp_transfer = new RtpMpeg4GenericTransfer;
-                }
-                pipe.insert(rtp_transfer);
-                add_rtp_transfer(rtp_transfer);
             } else {
                 add_rtp_transfer(NULL);
             }

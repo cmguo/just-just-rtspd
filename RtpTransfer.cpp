@@ -4,6 +4,8 @@
 #include "ppbox/rtspd/RtpTransfer.h"
 #include "ppbox/rtspd/RtcpPacket.h"
 
+#include <ppbox/avformat/Error.h>
+
 using namespace ppbox::mux;
 
 namespace ppbox
@@ -13,9 +15,11 @@ namespace ppbox
 
         RtpTransfer::RtpTransfer(
             char const * const name, 
+            char const * const format, 
             boost::uint8_t type)
             : time_scale_(0)
             , name_(name)
+            , format_(format)
             , total_size_(0)
             , rtcp_interval_(3000)
             , num_pkt_(0)
@@ -61,6 +65,26 @@ namespace ppbox
             StreamInfo & info)
         {
             time_scale_ = info.time_scale;
+
+            using namespace framework::string;
+            std::string map_id_str = format(rtp_head_.mpt);
+
+            std::ostringstream oss;
+            if (info.type == StreamType::VIDE) {
+                oss << "m=video 0 RTP/AVP " << map_id_str << "\r\n";
+                oss << "a=rtpmap:" << map_id_str << " " << format_ << "/" << format(time_scale_) + "\r\n";
+            } else {
+                oss << "m=audio 0 RTP/AVP " << map_id_str << "\r\n";
+                oss << "a=rtpmap:" << map_id_str << " " << format_ << "/" << format(time_scale_) 
+                    << "/" + format(info.audio_format.channel_count) << "\r\n";
+            }
+            oss << rtp_info_.sdp; // from child class
+            oss << "a=control:track" << format(info.index) << "\r\n";
+            rtp_info_.sdp = oss.str();
+
+            rtp_info_.stream_index = info.index;
+
+            std::cout << rtp_info_.sdp << std::endl;
         }
 
         void RtpTransfer::on_event(
@@ -198,6 +222,11 @@ namespace ppbox
             buffers_.push_back(boost::asio::buffer(rtcp_buffer_, length));
             packet.buf_end = buffers_.size();
             packets_.push_back(packet);
+        }
+
+        boost::system::error_code RtpTransferTraits::error_not_found()
+        {
+            return ppbox::avformat::error::format_not_support;
         }
 
     } // namespace rtspd

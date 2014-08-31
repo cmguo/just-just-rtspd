@@ -39,6 +39,8 @@ namespace ppbox
             bool use_dts_;
         };
 
+        PPBOX_REGISTER_RTP_TRANSFER("H264", RtpH264Transfer);
+
     } // namespace rtspd
 } // namespace ppbox
 

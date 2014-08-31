@@ -18,7 +18,7 @@ namespace ppbox
     {
 
         RtpH264Transfer::RtpH264Transfer()
-            : RtpTransfer("RtpH264", 96)
+            : RtpTransfer("RtpH264", "H264", 96)
             , mtu_size_(1436)
             , sps_pps_sent_(false)
             , use_dts_(false)
@@ -40,35 +40,31 @@ namespace ppbox
         void RtpH264Transfer::transfer(
             StreamInfo & info)
         {
-            RtpTransfer::transfer(info);
-
-            using namespace framework::string;
-            std::string map_id_str = format(rtp_head_.mpt);
-
             AvcConfigHelper const & config = *(AvcConfigHelper *)info.context;
             std::vector<boost::uint8_t> sps_data = config.data().sequenceParameterSetNALUnit[0];
             std::vector<boost::uint8_t> pps_data = config.data().pictureParameterSetNALUnit[0];
 
             boost::uint8_t const * profile_level_id = &sps_data.front() + 1;
 
+            using namespace framework::string;
             std::string profile_level_id_str = 
                 Base16::encode(std::string((char const *)profile_level_id, 3));
             std::string sps = Base64::encode(&sps_data.front(), sps_data.size());
             std::string pps = Base64::encode(&pps_data.front(), pps_data.size());
 
-            rtp_info_.sdp = "m=video 0 RTP/AVP " + map_id_str + "\r\n";
-            rtp_info_.sdp += "a=rtpmap:" + map_id_str + " H264/" + format(time_scale_) + "\r\n";
-            rtp_info_.sdp += "a=framesize:" + map_id_str + " " + format(info.video_format.width)
-                + "-" + format(info.video_format.height) + "\r\n";
-            rtp_info_.sdp += "a=cliprect:0,0," 
-                + format(info.video_format.height) + "," + format(info.video_format.width) + "\r\n";
-            rtp_info_.sdp += "a=fmtp:" + map_id_str 
-                + " packetization-mode=1" 
-                + ";profile-level-id=" + profile_level_id_str
-                + ";sprop-parameter-sets=" + sps + "," + pps + "\r\n";
-            rtp_info_.sdp += "a=control:track" + format(info.index) + "\r\n";
+            std::string map_id_str = format(rtp_head_.mpt);
+            std::ostringstream oss;
+            oss << "a=framesize:" << map_id_str << " " << format(info.video_format.width)
+                << "-" << format(info.video_format.height) << "\r\n";
+            oss << "a=cliprect:0,0," 
+                << format(info.video_format.height) << "," << format(info.video_format.width) << "\r\n";
+            oss << "a=fmtp:" << map_id_str 
+                << " packetization-mode=1" 
+                << ";profile-level-id=" + profile_level_id_str
+                << ";sprop-parameter-sets=" + sps + "," + pps + "\r\n";
+            rtp_info_.sdp += oss.str();
 
-            rtp_info_.stream_index = info.index;
+            RtpTransfer::transfer(info);
         }
 
         void RtpH264Transfer::transfer(

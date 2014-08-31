@@ -31,6 +31,8 @@ namespace ppbox
             std::vector<boost::uint8_t> packat_header_;
         };
 
+        PPBOX_REGISTER_RTP_TRANSFER("mpeg4-generic", RtpMpeg4GenericTransfer);
+
     } // namespace rtspd
 } // namespace ppbox
 

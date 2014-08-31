@@ -59,7 +59,7 @@ namespace ppbox
             std::string & out_transport, 
             boost::system::error_code & ec)
         {
-            std::string stream_index_str = control.substr(sizeof("track") - 1,2);
+            std::string stream_index_str = control.substr(sizeof("track") - 1);
             size_t stream_index = -1;
             parse2<size_t>(stream_index_str, stream_index);
 

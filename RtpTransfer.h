@@ -7,6 +7,8 @@
 
 #include <ppbox/mux/Transfer.h>
 
+#include <util/tools/ClassFactory.h>
+
 #include <framework/system/BytesOrder.h>
 #include <framework/system/ScaleTransform.h>
 
@@ -25,6 +27,7 @@ namespace ppbox
         public:
             RtpTransfer(
                 char const * const name, 
+                char const * const format, 
                 boost::uint8_t type);
 
             virtual ~RtpTransfer();
@@ -86,6 +89,7 @@ namespace ppbox
 
         protected:
             char const * const name_;
+            char const * const format_;
             RtpHead rtp_head_;
             RtpInfo rtp_info_;
             std::vector<RtpPacket> packets_;
@@ -102,7 +106,20 @@ namespace ppbox
             boost::uint8_t rtcp_buffer_[64];
         };
 
+        struct RtpTransferTraits
+            : util::tools::ClassFactoryTraits
+        {
+            typedef std::string key_type;
+            typedef RtpTransfer * (create_proto)();
+
+            static boost::system::error_code error_not_found();
+        };
+
+        typedef util::tools::ClassFactory<RtpTransferTraits> RtpTransferFactory;
+
     } // namespace rtspd
 } // namespace ppbox
+
+#define PPBOX_REGISTER_RTP_TRANSFER(key, cls) UTIL_REGISTER_CLASS(ppbox::rtspd::RtpTransferFactory, key, cls)
 
 #endif // _PPBOX_RTSPD_RTP_TRANSFER_H_
