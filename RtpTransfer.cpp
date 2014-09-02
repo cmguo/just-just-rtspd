@@ -83,8 +83,6 @@ namespace ppbox
             rtp_info_.sdp = oss.str();
 
             rtp_info_.stream_index = info.index;
-
-            std::cout << rtp_info_.sdp << std::endl;
         }
 
         void RtpTransfer::on_event(
@@ -120,6 +118,9 @@ namespace ppbox
 
             time_ms_ = sample.time;
             timestamp_ = sample.dts + sample.cts_delta;
+
+            buffers_.push_back(boost::asio::buffer(&packets_, sizeof(packets_)));
+            total_size_ += sizeof(packets_);
         }
 
         void RtpTransfer::begin_packet(
@@ -168,8 +169,6 @@ namespace ppbox
                 }
                 buffers_[packets_[i].buf_beg] = boost::asio::buffer(&packets_[i], sizeof(RtpHead));
             }
-            buffers_.push_back(boost::asio::buffer(&packets_, sizeof(packets_)));
-            total_size_ += sizeof(packets_);
             sample.size = total_size_;
             sample.data.swap(buffers_);
             sample.context = &packets_;

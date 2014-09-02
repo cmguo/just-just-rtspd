@@ -9,7 +9,7 @@ namespace ppbox
     {
 
         RtpMpegAudioTransfer::RtpMpegAudioTransfer()
-            : RtpTransfer("RtpAudioMpegTransfer", "mpa", 97)
+            : RtpTransfer("RtpAudioMpeg", "mpa", 97)
         {
             header_[0] = 0;
             header_[1] = 0;
