@@ -21,6 +21,7 @@ namespace ppbox
             {StreamType::AUDI,  (intptr_t)"mpa",            AudioSubType::MP1,  StreamFormatType::none, 90000}, 
             {StreamType::AUDI,  (intptr_t)"mpa",            AudioSubType::MP2,  StreamFormatType::none, 90000}, 
             {StreamType::AUDI,  (intptr_t)"mpa",            AudioSubType::MP3,  StreamFormatType::none, 90000}, 
+            {StreamType::AUDI,  (intptr_t)"ac3",            AudioSubType::AC3,  StreamFormatType::none, 1}, 
         };
 
         RtpFormat::RtpFormat()
