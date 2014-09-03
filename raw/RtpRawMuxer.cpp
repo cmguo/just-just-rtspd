@@ -8,7 +8,9 @@
 #include "ppbox/rtspd/raw/RtpMpeg4GenericTransfer.h"
 #include "ppbox/rtspd/raw/RtpMpegAudioTransfer.h"
 #include "ppbox/rtspd/raw/RtpH264Transfer.h"
+#include "ppbox/rtspd/raw/RtpH265Transfer.h"
 #include "ppbox/rtspd/raw/RtpAc3Transfer.h"
+#include "ppbox/rtspd/raw/RtpEac3Transfer.h"
 
 #include "ppbox/rtspd/raw/RtpFormat.h"
 
