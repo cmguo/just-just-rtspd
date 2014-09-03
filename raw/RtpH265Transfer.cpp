@@ -62,7 +62,7 @@ namespace ppbox
                 ;
             char T[] = "vsp";
             for (boost::uint8_t t = HevcNaluType::VPS_NUT; t <= HevcNaluType::PPS_NUT; ++t) {
-                HevcConfigHelper::param_set_t ps = config.param_set(t);
+                HevcConfigHelper::param_set_t const & ps = config.param_set(t);
                 for (size_t i = 0; i < ps.size(); ++i) {
                     if (i == 0) {
                         oss << ";sprop-" << T[t - HevcNaluType::VPS_NUT] << "ps=";
@@ -94,7 +94,7 @@ namespace ppbox
                 HevcConfigHelper const & config = *(HevcConfigHelper *)info.context;
 
                 for (boost::uint8_t t = HevcNaluType::VPS_NUT; t <= HevcNaluType::PPS_NUT; ++t) {
-                    HevcConfigHelper::param_set_t ps = config.param_set(t);
+                    HevcConfigHelper::param_set_t const & ps = config.param_set(t);
                     for (size_t i = 0; i < ps.size(); ++i) {
                         begin_packet(false, rtp_time, ps[i].size());
                         push_buffers(boost::asio::buffer(ps[i]));
