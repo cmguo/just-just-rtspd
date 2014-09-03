@@ -22,7 +22,9 @@ namespace ppbox
     namespace rtspd
     {
 
-        RtpRawMuxer::RtpRawMuxer()
+        RtpRawMuxer::RtpRawMuxer(
+            boost::asio::io_service & io_svc)
+            : RtpMuxer(io_svc)
         {
         }
 

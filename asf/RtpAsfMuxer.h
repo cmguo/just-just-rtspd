@@ -18,7 +18,8 @@ namespace ppbox
             : public RtpMuxer
         {
         public:
-            RtpAsfMuxer();
+            RtpAsfMuxer(
+                boost::asio::io_service & io_svc);
 
             ~RtpAsfMuxer();
 

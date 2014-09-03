@@ -14,7 +14,8 @@ namespace ppbox
             : public RtpMuxer
         {
         public:
-            RtpRawMuxer();
+            RtpRawMuxer(
+                boost::asio::io_service & io_svc);
 
             ~RtpRawMuxer();
 

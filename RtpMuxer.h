@@ -23,9 +23,11 @@ namespace ppbox
             : public ppbox::mux::Muxer
         {
         public:
-            RtpMuxer();
+            RtpMuxer(
+                boost::asio::io_service & io_svc);
 
             RtpMuxer(
+                boost::asio::io_service & io_svc, 
                 MuxerBase * base);
 
             ~RtpMuxer();

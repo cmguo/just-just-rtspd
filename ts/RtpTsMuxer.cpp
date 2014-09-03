@@ -12,8 +12,10 @@ namespace ppbox
     namespace rtspd
     {
 
-        RtpTsMuxer::RtpTsMuxer()
-            : RtpMuxer(&ts_mux_)
+        RtpTsMuxer::RtpTsMuxer(
+            boost::asio::io_service & io_svc)
+            : RtpMuxer(io_svc, &ts_mux_)
+            , ts_mux_(io_svc)
             , rtp_ts_transfer_(NULL)
         {
             format("ts");

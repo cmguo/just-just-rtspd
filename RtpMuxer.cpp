@@ -15,14 +15,18 @@ namespace ppbox
     namespace rtspd
     {
 
-        RtpMuxer::RtpMuxer()
-            : base_(NULL)
+        RtpMuxer::RtpMuxer(
+            boost::asio::io_service & io_svc)
+            : Muxer(io_svc)
+            , base_(NULL)
         {
         }
 
         RtpMuxer::RtpMuxer(
+            boost::asio::io_service & io_svc, 
             MuxerBase * base)
-            : base_(base)
+            : Muxer(io_svc)
+            , base_(base)
         {
         }
 

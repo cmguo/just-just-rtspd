@@ -12,8 +12,10 @@ namespace ppbox
     namespace rtspd
     {
 
-        RtpAsfMuxer::RtpAsfMuxer()
-            : RtpMuxer(&asf_mux_)
+        RtpAsfMuxer::RtpAsfMuxer(
+            boost::asio::io_service & io_svc)
+            : RtpMuxer(io_svc, &asf_mux_)
+            , asf_mux_(io_svc)
             , rtp_asf_transfer_(NULL)
         {
             format("asf");
