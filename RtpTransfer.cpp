@@ -67,19 +67,20 @@ namespace ppbox
             time_scale_ = info.time_scale;
 
             using namespace framework::string;
-            std::string map_id_str = format(rtp_head_.mpt);
 
             std::ostringstream oss;
+            int map_id = rtp_head_.mpt;
             if (info.type == StreamType::VIDE) {
-                oss << "m=video 0 RTP/AVP " << map_id_str << "\r\n";
-                oss << "a=rtpmap:" << map_id_str << " " << format_ << "/" << format(time_scale_) + "\r\n";
+                oss << "m=video 0 RTP/AVP " << map_id << "\r\n";
+                oss << "a=rtpmap:" << map_id << " " << format_ << "/" << time_scale_ << "\r\n";
             } else {
-                oss << "m=audio 0 RTP/AVP " << map_id_str << "\r\n";
-                oss << "a=rtpmap:" << map_id_str << " " << format_ << "/" << format(time_scale_) 
-                    << "/" + format(info.audio_format.channel_count) << "\r\n";
+                oss << "m=audio 0 RTP/AVP " << map_id << "\r\n";
+                oss << "a=rtpmap:" << map_id << " " << format_ << "/" << time_scale_ 
+                    << "/" << info.audio_format.channel_count
+                    << "\r\n";
             }
             oss << rtp_info_.sdp; // from child class
-            oss << "a=control:track" << format(info.index) << "\r\n";
+            oss << "a=control:track" << info.index << "\r\n";
             rtp_info_.sdp = oss.str();
 
             rtp_info_.stream_index = info.index;

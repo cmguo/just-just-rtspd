@@ -29,7 +29,7 @@ namespace ppbox
             boost::uint16_t header_[2];
         };
 
-        PPBOX_REGISTER_RTP_TRANSFER("mpa", RtpMpegAudioTransfer);
+        PPBOX_REGISTER_RTP_TRANSFER("MPA", RtpMpegAudioTransfer);
 
     } // namespace rtspd
 } // namespace ppbox

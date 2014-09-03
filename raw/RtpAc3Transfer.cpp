@@ -11,6 +11,10 @@ namespace ppbox
     namespace rtspd
     {
 
+        /*
+         * RFC 4184: RTP Payload Format for AC-3 Audio
+         */
+
         RtpAc3Transfer::RtpAc3Transfer()
             : RtpTransfer("RtpAc3", "ac3", 97)
             , mtu_size_(1436)

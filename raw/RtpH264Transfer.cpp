@@ -17,6 +17,11 @@ namespace ppbox
     namespace rtspd
     {
 
+        /*
+         * RFC 3984: RTP Payload Format for H.264 Video
+         * RFC 6184: RTP Payload Format for H.264 Video
+         */
+
         RtpH264Transfer::RtpH264Transfer()
             : RtpTransfer("RtpH264", "H264", 96)
             , mtu_size_(1436)
@@ -52,16 +57,19 @@ namespace ppbox
             std::string sps = Base64::encode(&sps_data.front(), sps_data.size());
             std::string pps = Base64::encode(&pps_data.front(), pps_data.size());
 
-            std::string map_id_str = format(rtp_head_.mpt);
             std::ostringstream oss;
-            oss << "a=framesize:" << map_id_str << " " << format(info.video_format.width)
-                << "-" << format(info.video_format.height) << "\r\n";
+            int map_id = rtp_head_.mpt;
+            oss << "a=framesize:" << map_id
+                << " " << info.video_format.width << "-" << info.video_format.height
+                << "\r\n";
             oss << "a=cliprect:0,0," 
-                << format(info.video_format.height) << "," << format(info.video_format.width) << "\r\n";
-            oss << "a=fmtp:" << map_id_str 
+                << info.video_format.height << "," << info.video_format.width
+                << "\r\n";
+            oss << "a=fmtp:" << map_id
                 << " packetization-mode=1" 
-                << ";profile-level-id=" + profile_level_id_str
-                << ";sprop-parameter-sets=" + sps + "," + pps + "\r\n";
+                << ";profile-level-id=" << profile_level_id_str
+                << ";sprop-parameter-sets=" << sps << "," << pps
+                << "\r\n";
             rtp_info_.sdp += oss.str();
 
             RtpTransfer::transfer(info);

@@ -13,14 +13,16 @@ namespace ppbox
     namespace rtspd
     {
 
+        // http://www.iana.org/assignments/rtp-parameters/rtp-parameters.xhtml
+
         ppbox::avformat::CodecInfo const RtpFormat::codecs_[] = {
             {StreamType::VIDE,  (intptr_t)"H264",           VideoSubType::AVC,  StreamFormatType::none, 90000}, 
             {StreamType::AUDI,  (intptr_t)"mpeg4-generic",  AudioSubType::AAC,  AacFormatType::raw,     1}, 
-            {StreamType::AUDI,  (intptr_t)"mpa",            AudioSubType::MP1A, StreamFormatType::none, 90000}, 
-            {StreamType::AUDI,  (intptr_t)"mpa",            AudioSubType::MP2A, StreamFormatType::none, 90000}, 
-            {StreamType::AUDI,  (intptr_t)"mpa",            AudioSubType::MP1,  StreamFormatType::none, 90000}, 
-            {StreamType::AUDI,  (intptr_t)"mpa",            AudioSubType::MP2,  StreamFormatType::none, 90000}, 
-            {StreamType::AUDI,  (intptr_t)"mpa",            AudioSubType::MP3,  StreamFormatType::none, 90000}, 
+            {StreamType::AUDI,  (intptr_t)"MPA",            AudioSubType::MP1A, StreamFormatType::none, 90000}, 
+            {StreamType::AUDI,  (intptr_t)"MPA",            AudioSubType::MP2A, StreamFormatType::none, 90000}, 
+            {StreamType::AUDI,  (intptr_t)"MPA",            AudioSubType::MP1,  StreamFormatType::none, 90000}, 
+            {StreamType::AUDI,  (intptr_t)"MPA",            AudioSubType::MP2,  StreamFormatType::none, 90000}, 
+            {StreamType::AUDI,  (intptr_t)"MPA",            AudioSubType::MP3,  StreamFormatType::none, 90000}, 
             {StreamType::AUDI,  (intptr_t)"ac3",            AudioSubType::AC3,  StreamFormatType::none, 1}, 
         };
 

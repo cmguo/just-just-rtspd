@@ -12,6 +12,10 @@ namespace ppbox
     namespace rtspd
     {
 
+        /* 
+         * RFC 3640: RTP Payload Format for Transport of MPEG-4 Elementary Streams
+         */
+
         RtpMpeg4GenericTransfer::RtpMpeg4GenericTransfer()
             : RtpTransfer("RtpMpeg4Generic", "mpeg4-generic", 97)
             , index_(0)
@@ -28,9 +32,8 @@ namespace ppbox
             StreamInfo & info)
         {
             using namespace framework::string;
-            std::string map_id_str = format(rtp_head_.mpt);
             std::ostringstream oss;
-            oss << "a=fmtp:" + map_id_str 
+            oss << "a=fmtp:" << (int)rtp_head_.mpt
                 << " streamType=5"
                 << ";profile-level-id=41"
                 //<< ";objecttype=64"
@@ -38,7 +41,7 @@ namespace ppbox
                 << ";sizeLength=13"
                 << ";indexLength=3"
                 << ";indexDeltaLength=3"
-                << ";config=" + Base16::encode(std::string((char const *)&info.format_data.at(0), info.format_data.size()))
+                << ";config=" << Base16::encode(std::string((char const *)&info.format_data.at(0), info.format_data.size()))
                 << "\r\n";
             rtp_info_.sdp += oss.str();
 
