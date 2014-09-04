@@ -4,19 +4,9 @@
 #define _PPBOX_RTSPD_RTSP_SESSION_H_
 
 #include <util/protocol/rtsp/RtspServer.h>
+#include <util/protocol/rtsp/RtspFieldRange.h>
 
 #include <boost/shared_ptr.hpp>
-
-namespace util
-{
-    namespace protocol
-    {
-        namespace rtsp_field
-        {
-            class Range;
-        }
-    }
-}
 
 namespace ppbox
 {
@@ -38,7 +28,7 @@ namespace ppbox
             ~RtspSession();
 
         public:
-            virtual void local_process(
+            virtual void local_process_request(
                 response_type const & resp);
 
             virtual void on_error(

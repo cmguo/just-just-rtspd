@@ -3,23 +3,13 @@
 #ifndef _PPBOX_RTSPD_RTSP_DISPATCHER_H_
 #define _PPBOX_RTSPD_RTSP_DISPATCHER_H_
 
-
 #include <ppbox/dispatch/CustomDispatcher.h>
+
+#include <util/protocol/rtsp/RtspFieldRange.h>
 
 #include <boost/asio/ip/tcp.hpp>
 
 #include <boost/asio/streambuf.hpp>
-
-namespace util
-{
-    namespace protocol
-    {
-        namespace rtsp_field
-        {
-            class Range;
-        }
-    }
-}
 
 namespace ppbox
 {

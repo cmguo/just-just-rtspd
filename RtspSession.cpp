@@ -7,6 +7,7 @@
 
 #include <util/protocol/rtsp/RtspRequest.h>
 #include <util/protocol/rtsp/RtspResponse.h>
+#include <util/protocol/rtsp/RtspSocket.hpp>
 #include <util/protocol/rtsp/RtspError.h>
 using namespace util::protocol;
 
@@ -46,14 +47,14 @@ namespace ppbox
             }
         }
 
-        void RtspSession::local_process(
+        void RtspSession::local_process_request(
             response_type const & resp)
         {
             //如果不是 Init状态 就是异常情况
             
             boost::system::error_code ec;
 
-            LOG_DEBUG("[local_process] session_id:"<<session_id_<<" request:"<<request().head().path);
+            LOG_DEBUG("[local_process_request] session_id:"<<session_id_<<" request:"<<request().head().path);
             request().head().get_content(std::cout);
 
             if (request().head().method >= RtspRequestHead::setup && dispatcher_ == NULL) {
