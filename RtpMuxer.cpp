@@ -98,6 +98,9 @@ namespace ppbox
             std::vector<StreamInfo> & streams) const
         {
             Muxer::stream_info(streams);
+            for(boost::uint32_t i = 0; i < streams.size(); ++i) {
+                streams[i].format_data.clear();
+            }
             for(boost::uint32_t i = 0; i < rtp_transfers_.size(); ++i) {
                 if (rtp_transfers_[i] == NULL)
                     continue;

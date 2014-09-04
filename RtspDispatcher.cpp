@@ -78,6 +78,9 @@ namespace ppbox
                 return false;
             }
 
+            // RtpStreamDesc for track(-1) is at index 0
+            if (stream_index == size_t(-1))
+                stream_index = 0;
             RtpStreamDesc rtp_desc;
             rtp_desc.from_data(info[stream_index].format_data);
             

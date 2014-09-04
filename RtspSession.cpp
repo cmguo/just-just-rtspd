@@ -56,6 +56,12 @@ namespace ppbox
             LOG_DEBUG("[local_process] session_id:"<<session_id_<<" request:"<<request().head().path);
             request().head().get_content(std::cout);
 
+            if (request().head().method >= RtspRequestHead::setup && dispatcher_ == NULL) {
+                ec = rtsp_error::not_open;
+                resp(ec);
+                return;
+            }
+
             switch (request().head().method) {
                 case RtspRequestHead::options:
                     response().head().public_.reset("OPTIONS, DESCRIBE, SETUP, PLAY, PAUSE, TEARDOWN");
