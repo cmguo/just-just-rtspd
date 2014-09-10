@@ -17,6 +17,9 @@ namespace ppbox
         class RtspDispatcher;
         class RtspdModule;
 
+        using util::protocol::RtspRequest;
+        using util::protocol::RtspResponse;
+
         class RtspSession
             : public util::protocol::RtspServer
              //,public AsyncCallback
@@ -27,18 +30,21 @@ namespace ppbox
 
             ~RtspSession();
 
-        public:
-            virtual void local_process_request(
-                response_type const & resp);
+        protected:
+            virtual void on_start();
 
+            virtual void on_recv(
+                RtspRequest const & req);
+
+            virtual void on_sent(
+                RtspResponse const & resp);
+
+        public:
+            // public: called by ServerManager
             virtual void on_error(
                 boost::system::error_code const & ec);
 
-            virtual void on_finish();
-
-            virtual void post_process(
-                response_type const & resp);
-
+        private:
             void on_play(
                 boost::system::error_code const & ec);
 
@@ -48,7 +54,6 @@ namespace ppbox
             std::string content_base_;
             RtspDispatcher * dispatcher_;
             boost::uint32_t play_count_;
-            response_type post_resp_;
         };
 
     } // namespace rtspd

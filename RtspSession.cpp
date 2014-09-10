@@ -9,6 +9,7 @@
 #include <util/protocol/rtsp/RtspResponse.h>
 #include <util/protocol/rtsp/RtspSocket.hpp>
 #include <util/protocol/rtsp/RtspError.h>
+#include <util/archive/ArchiveBuffer.h>
 using namespace util::protocol;
 
 #include <framework/string/Url.h>
@@ -47,29 +48,41 @@ namespace ppbox
             }
         }
 
-        void RtspSession::local_process_request(
-            response_type const & resp)
+        void RtspSession::on_start()
+        {
+            /*
+            RtspRequest req;
+            RtspRequestHead & head = req.head();
+            head.method = RtspRequestHead::options;
+            head.path = "*";
+            head["Require"] = "org.wfa.wfd1.0";
+            post(req);
+            */
+        }
+
+        void RtspSession::on_recv(
+            RtspRequest const & req)
         {
             //如果不是 Init状态 就是异常情况
             
             boost::system::error_code ec;
 
-            LOG_DEBUG("[local_process_request] session_id:"<<session_id_<<" request:"<<request().head().path);
-            request().head().get_content(std::cout);
+            LOG_DEBUG("[on_recv] session_id: " << session_id_ << " path: " << req.head().path);
+            req.head().get_content(std::cout);
 
-            if (request().head().method >= RtspRequestHead::setup && dispatcher_ == NULL) {
+            if (req.head().method >= RtspRequestHead::setup && dispatcher_ == NULL) {
                 ec = rtsp_error::not_open;
-                resp(ec);
+                response(ec);
                 return;
             }
 
-            switch (request().head().method) {
+            switch (req.head().method) {
                 case RtspRequestHead::options:
                     response().head().public_.reset("OPTIONS, DESCRIBE, SETUP, PLAY, PAUSE, TEARDOWN");
                     break;
                 case RtspRequestHead::describe:
                     {
-                        framework::string::Url url(request().head().path);
+                        framework::string::Url url(req.head().path);
                         content_base_ = url.to_string() + "/";
 
                         response().head()["Content-Type"] = "{application/sdp}";
@@ -77,20 +90,20 @@ namespace ppbox
 
                         dispatcher_ = mgr_.alloc_dispatcher(url, ec);
 
-                        std::string user_agent = request().head()["User-Agent"];
+                        std::string user_agent = req.head()["User-Agent"];
 
                         dispatcher_->async_open(
                             url, 
                             user_agent, 
                             response().data(),
-                            resp);
+                            boost::bind(&RtspServer::response, this, _1));
 
                         return;
                     }
                     break;
                 case RtspRequestHead::setup:
                     {
-                        Url url(request().head().path);
+                        Url url(req.head().path);
                         
                         std::string myurl = url.to_string();
                         int t = myurl.find("/track");
@@ -100,7 +113,7 @@ namespace ppbox
                         }
                         std::string control = myurl.substr(t + 1);
 
-                        std::string transport = request().head().transport.get();
+                        std::string transport = req.head().transport.get();
                         response().head().transport = "";
 
                         //监听端口之类的
@@ -118,8 +131,8 @@ namespace ppbox
                     {
                         response().head().rtp_info = content_base_;
 
-                        if (request().head().range.is_initialized())
-                            response().head().range =  request().head().range;
+                        if (req.head().range.is_initialized())
+                            response().head().range =  req.head().range;
                         else
                             response().head().range = util::protocol::rtsp_field::Range(0);
 
@@ -128,7 +141,7 @@ namespace ppbox
                         dispatcher_->async_play(
                             response().head().range.get(), 
                             response().head().rtp_info.get(), 
-                            resp, 
+                            boost::bind(&RtspServer::response, this, _1), 
                             boost::bind(&RtspSession::on_play, this, _1));
 
                         response().head()["Session"] = "{" + format(session_id_) + "}";
@@ -155,7 +168,8 @@ namespace ppbox
                 default:
                     ec = rtsp_error::option_not_supported;
             }
-            resp(ec);
+
+            response(ec);
         }
 
         void RtspSession::on_error(
@@ -169,19 +183,6 @@ namespace ppbox
             }
         }
 
-        void RtspSession::post_process(
-            response_type const & resp)
-        {
-            LOG_INFO("[post_process] session_id:" << session_id_);
-
-            if (play_count_) {
-                post_resp_ = resp;
-            } else {
-                boost::system::error_code ec;
-                resp(ec);
-            }
-        }
-
         void RtspSession::on_play(
             boost::system::error_code const & ec)
         {
@@ -189,22 +190,23 @@ namespace ppbox
 
             --play_count_;
 
-            if (!post_resp_.empty() && play_count_ == 0) {
-                boost::system::error_code ec1;
-                response_type resp;
-                resp.swap(post_resp_);
-                resp(ec1);
+            if (!dispatcher_ && play_count_ == 0) {
+                stop();
             } else if (ec && ec != boost::asio::error::operation_aborted) {
                 boost::system::error_code ec1;
                 cancel(ec1);
             }
         }
 
-        void RtspSession::on_finish()
+        void RtspSession::on_sent(
+            RtspResponse const & resp)
         {
-            response().head().get_content(std::cout);
+            resp.head().get_content(std::cout);
+            util::archive::ArchiveBuffer<> abuf(resp.data().data());
+            std::cout << (&abuf);
+            std::cout.clear();
 
-            if (request().head().method == RtspRequestHead::play) {
+            if (!resp.head()["RTP-Info"].empty()) {
                 boost::system::error_code ec1;
                 dispatcher_->resume(ec1);
             }
