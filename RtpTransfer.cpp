@@ -89,7 +89,7 @@ namespace ppbox
         void RtpTransfer::on_event(
             MuxEvent const & event)
         {
-            if (event.type != event.finish_seek)
+            if (event.type != event.after_seek)
                 return;
             boost::uint64_t time = event.time;
             if (!packets_.empty()) {

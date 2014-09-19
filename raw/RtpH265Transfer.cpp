@@ -159,7 +159,7 @@ namespace ppbox
             MuxEvent const & event)
         {
             RtpTransfer::on_event(event);
-            if (event.type == event.begin_reset) {
+            if (event.type == event.before_reset) {
                 sps_pps_sent_ = false;
             }
         }

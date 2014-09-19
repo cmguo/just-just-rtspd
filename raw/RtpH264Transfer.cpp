@@ -111,8 +111,8 @@ namespace ppbox
                 size_t l = nalu.size;
                 if (l > (mtu_size_)) {
                     boost::uint8_t b = nalu.begin.dereference_byte();
-                    prefix_[0][0] = (b & 0xE0) | 28;
-                    prefix_[0][1] = (b | 0x80) & 0x9F;
+                    prefix_[0][0] = (b & 0xe0) | 28;
+                    prefix_[0][1] = (b & 0x1f) | 0x80;
                     nalu.begin.increment_byte(nalu.end);
                     --l;
                     NaluBuffer::BuffersPosition pos = nalu.begin;
@@ -123,7 +123,7 @@ namespace ppbox
                     finish_packet();
                     l -= mtu_size_ - 2;
                     prefix_[1][0] = prefix_[0][0];
-                    prefix_[1][1] = prefix_[0][1] & 0x7F;
+                    prefix_[1][1] = prefix_[0][1] & 0x7f;
                     while (l > mtu_size_ - 2) {
                         NaluBuffer::BuffersPosition pos1 = nalu.begin;
                         nalu.begin.increment_bytes(nalu.end, mtu_size_ - 2);
@@ -152,7 +152,7 @@ namespace ppbox
             MuxEvent const & event)
         {
             RtpTransfer::on_event(event);
-            if (event.type == event.begin_reset) {
+            if (event.type == event.before_reset) {
                 sps_pps_sent_ = false;
             }
         }
