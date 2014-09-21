@@ -118,7 +118,7 @@ namespace ppbox
             boost::system::error_code ec)
         {
 
-            ppbox::data::MediaInfo info;
+            ppbox::avbase::MediaInfo info;
             if (!ec) {
                 CustomDispatcher::get_media_info(info, ec);
             }
@@ -137,10 +137,10 @@ namespace ppbox
             os << "i=" << info.name << "\r\n";
             os << "c=IN IP4 " << "0.0.0.0" << "\r\n";
             os << "t=0 0\r\n";
-            if (info.type == ppbox::data::MediaInfo::live) {
+            if (info.type == ppbox::avbase::MediaInfo::live) {
                 os << "a=type:broadcast\r\n";
                 os << "a=range:npt=now-\r\n";
-            } else if (info.duration == ppbox::data::invalid_size) {
+            } else if (info.duration == ppbox::avbase::invalid_size) {
                 os << "a=range:npt=0.000-\r\n";
             } else {
                 os << "a=range:npt=0.000-" << (float)info.duration / 1000.0 << "\r\n";
@@ -158,7 +158,7 @@ namespace ppbox
             ppbox::dispatch::response_t const & resp, 
             boost::system::error_code ec)
         {
-            ppbox::data::StreamStatus status;
+            ppbox::avbase::StreamStatus status;
             std::vector<ppbox::avbase::StreamInfo> streams;
 
             if (!ec) {
@@ -198,7 +198,7 @@ namespace ppbox
             float be = (float)status.time_range.beg / 1000.0f;
             float en = (float)status.time_range.end / 1000.0f;
 
-            if (status.time_range.end != ppbox::data::invalid_size) {
+            if (status.time_range.end != ppbox::avbase::invalid_size) {
                 en = (float)status.time_range.end / 1000.0f;
                 range[0] = rtsp_field::Range::Unit(be, en); 
             } else {
