@@ -45,6 +45,11 @@ namespace ppbox
                 boost::system::error_code const & ec);
 
         private:
+            void on_seek(
+                boost::system::error_code const & ec, 
+                util::protocol::rtsp_field::Range * range, 
+                std::string * rtp_info);
+
             void on_play(
                 boost::system::error_code const & ec);
 

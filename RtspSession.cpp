@@ -26,6 +26,11 @@ namespace ppbox
     namespace rtspd
     {
 
+        using util::protocol::rtsp_field::f_public;
+        using util::protocol::rtsp_field::f_transport;
+        using util::protocol::rtsp_field::f_range;
+        using util::protocol::rtsp_field::f_rtp_info;
+
         RtspSession::RtspSession(
             RtspdModule & mgr)
             : util::protocol::RtspServer(mgr.io_svc())
@@ -78,15 +83,15 @@ namespace ppbox
 
             switch (req.head().method) {
                 case RtspRequestHead::options:
-                    response().head().public_.reset("OPTIONS, DESCRIBE, SETUP, PLAY, PAUSE, TEARDOWN");
+                    response().head()[f_public].reset("OPTIONS, DESCRIBE, SETUP, PLAY, PAUSE, TEARDOWN");
                     break;
                 case RtspRequestHead::describe:
                     {
                         framework::string::Url url(req.head().path);
                         content_base_ = url.to_string() + "/";
 
-                        response().head()["Content-Type"] = "{application/sdp}";
-                        response().head()["Content-Base"] = "{" + content_base_ + "}";
+                        response().head()["Content-Type"] = "application/sdp";
+                        response().head()["Content-Base"] = content_base_;
 
                         dispatcher_ = mgr_.alloc_dispatcher(url, ec);
 
@@ -113,38 +118,43 @@ namespace ppbox
                         }
                         std::string control = myurl.substr(t + 1);
 
-                        std::string transport = req.head().transport.get();
-                        response().head().transport = "";
+                        std::string transport = req.head()[f_transport].get();
+                        response().head()[f_transport] = "";
 
                         //监听端口之类的
                         dispatcher_->setup(
                             (boost::asio::ip::tcp::socket &)(*this), 
                             control, 
                             transport, 
-                            response().head().transport.get(), 
+                            transport, 
                             ec);
 
-                        response().head()["Session"] = "{" + format(session_id_) + "}";
+                        response().head()[f_transport].set(transport);
+                        response().head()["Session"] = format(session_id_);
                     }
                     break;
                 case RtspRequestHead::play:
                     {
-                        response().head().rtp_info = content_base_;
+                        response().head()[f_rtp_info] = content_base_;
 
-                        if (req.head().range.is_initialized())
-                            response().head().range =  req.head().range;
+                        if (req.head()[f_range].is_set())
+                            response().head()[f_range] = req.head()[f_range].get();
                         else
-                            response().head().range = util::protocol::rtsp_field::Range(0);
+                            response().head()[f_range] = rtsp_field::Range(0);
 
                         ++play_count_;
 
+                        rtsp_field::Range * range = 
+                            new rtsp_field::Range(response().head()[f_range].get());
+                        std::string * rtp_info = new std::string(response().head()[f_rtp_info].get());
+
                         dispatcher_->async_play(
-                            response().head().range.get(), 
-                            response().head().rtp_info.get(), 
-                            boost::bind(&RtspServer::response, this, _1), 
+                            *range, 
+                            *rtp_info, 
+                            boost::bind(&RtspSession::on_seek, this, _1, range, rtp_info), 
                             boost::bind(&RtspSession::on_play, this, _1));
 
-                        response().head()["Session"] = "{" + format(session_id_) + "}";
+                        response().head()["Session"] = format(session_id_);
                         
                     }
                     return;
@@ -156,7 +166,7 @@ namespace ppbox
                 case RtspRequestHead::teardown:
                     dispatcher_->close(ec);
                     dispatcher_ = NULL;
-                    response().head()["Session"] = "{" + format(session_id_) + "}";
+                    response().head()["Session"] = format(session_id_);
                     session_id_ = 0;
                     break;
 
@@ -181,6 +191,16 @@ namespace ppbox
                 dispatcher_->close(ec1);
                 dispatcher_ = NULL;
             }
+        }
+
+        void RtspSession::on_seek(
+            boost::system::error_code const & ec, 
+            rtsp_field::Range * range, 
+            std::string * rtp_info)
+        {
+            response().head()[f_range].set(*range);
+            response().head()[f_rtp_info].set(*rtp_info);
+            response(ec);
         }
 
         void RtspSession::on_play(
