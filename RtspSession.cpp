@@ -36,6 +36,7 @@ namespace ppbox
             : util::protocol::RtspServer(mgr.io_svc())
             , mgr_(mgr)
             , dispatcher_(NULL)
+            , closed_(false)
             , play_count_(0)
         {
             static boost::uint32_t g_id = rand();
@@ -165,8 +166,8 @@ namespace ppbox
 
                 case RtspRequestHead::teardown:
                     dispatcher_->close(ec);
-                    dispatcher_ = NULL;
                     response().head()["Session"] = format(session_id_);
+                    closed_ = true;
                     session_id_ = 0;
                     break;
 
@@ -186,10 +187,10 @@ namespace ppbox
             error_code const & ec)
         {
             LOG_INFO("[on_error] session_id:" << session_id_ << " ec:" << ec.message());
-            if (dispatcher_) {
+            if (dispatcher_ && !closed_) {
                 boost::system::error_code ec1;
                 dispatcher_->close(ec1);
-                dispatcher_ = NULL;
+                closed_ = true;
             }
         }
 
@@ -210,7 +211,7 @@ namespace ppbox
 
             --play_count_;
 
-            if (!dispatcher_ && play_count_ == 0) {
+            if (closed_ && play_count_ == 0) {
                 stop();
             } else if (ec && ec != boost::asio::error::operation_aborted) {
                 boost::system::error_code ec1;

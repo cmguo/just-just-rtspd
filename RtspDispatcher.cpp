@@ -36,6 +36,9 @@ namespace ppbox
 
         RtspDispatcher::~RtspDispatcher()
         {
+            for (size_t i = 0; i < sinks_.size(); ++i) {
+                delete sinks_[i];
+            }
         }
 
         void RtspDispatcher::async_open(
@@ -66,11 +69,14 @@ namespace ppbox
             util::stream::Sink * sink = 
                 create_transport(rtsp_sock, in_transport, out_transport, ec);
             if (!CustomDispatcher::setup(stream_index, *sink, ec)) {
+                delete sink;
                 return false;
             }
             //if (!CustomDispatcher::setup(stream_index + 0x100, *transports.second, ec)) {
             //    return false;
             //}
+ 
+            sinks_.push_back(sink);
 
             //ื้ ssrc
             std::vector<StreamInfo> info;

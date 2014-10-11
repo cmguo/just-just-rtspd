@@ -57,6 +57,9 @@ namespace ppbox
                 util::protocol::rtsp_field::Range & range, 
                 ppbox::dispatch::response_t const & resp, 
                 boost::system::error_code ec);
+
+        private:
+            std::vector<util::stream::Sink *> sinks_;
         };
 
     } // namespace rtspd

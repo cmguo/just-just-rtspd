@@ -58,6 +58,7 @@ namespace ppbox
             boost::uint32_t session_id_;
             std::string content_base_;
             RtspDispatcher * dispatcher_;
+            bool closed_;
             boost::uint32_t play_count_;
         };
 
