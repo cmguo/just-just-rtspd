@@ -6,7 +6,6 @@
 #include <util/tools/ClassRegister.h>
 
 #include "ppbox/rtspd/raw/RtpRawMuxer.h"
-#include "ppbox/rtspd/raw/RtpFormat.h"
 #include "ppbox/rtspd/ts/RtpTsMuxer.h"
 #include "ppbox/rtspd/asf/RtpAsfMuxer.h"
 

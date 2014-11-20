@@ -12,7 +12,8 @@
 #include "ppbox/rtspd/raw/RtpAc3Transfer.h"
 #include "ppbox/rtspd/raw/RtpEac3Transfer.h"
 
-#include "ppbox/rtspd/raw/RtpFormat.h"
+#include <ppbox/avformat/rtp/RtpFormat.h>
+using namespace ppbox::avformat;
 
 #include <ppbox/avcodec/CodecType.h>
 using namespace ppbox::avcodec;
@@ -40,7 +41,7 @@ namespace ppbox
             boost::system::error_code ec;
             ppbox::avformat::CodecInfo const * codec = rtp.codec_from_codec(info.type, info.sub_type, ec);
             if (codec) {
-                RtpTransfer * rtp_transfer = RtpTransferFactory::create((char const *)codec->stream_type, ec);
+                RtpTransfer * rtp_transfer = RtpTransferFactory::create((char const *)codec->context, ec);
                 if (rtp_transfer) {
                     pipe.insert(rtp_transfer);
                     add_rtp_transfer(rtp_transfer);
