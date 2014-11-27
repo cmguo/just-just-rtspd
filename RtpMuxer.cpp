@@ -1,16 +1,16 @@
 // RtpMuxer.cpp
 
-#include "ppbox/rtspd/Common.h"
-#include "ppbox/rtspd/RtpMuxer.h"
-#include "ppbox/rtspd/RtpTransfer.h"
-#include "ppbox/rtspd/RtpStreamDesc.h"
+#include "just/rtspd/Common.h"
+#include "just/rtspd/RtpMuxer.h"
+#include "just/rtspd/RtpTransfer.h"
+#include "just/rtspd/RtpStreamDesc.h"
 
-using namespace ppbox::mux;
+using namespace just::mux;
 
 #include <framework/string/Base16.h>
 #include <framework/string/Format.h>
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -119,4 +119,4 @@ namespace ppbox
         }
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just

@@ -1,9 +1,9 @@
 // RtpMpegAudioTransfer.cpp
 
-#include "ppbox/rtspd/Common.h"
-#include "ppbox/rtspd/raw/RtpMpegAudioTransfer.h"
+#include "just/rtspd/Common.h"
+#include "just/rtspd/raw/RtpMpegAudioTransfer.h"
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -46,4 +46,4 @@ namespace ppbox
         }
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just

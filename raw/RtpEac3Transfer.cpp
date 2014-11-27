@@ -1,12 +1,12 @@
 // RtpEac3Transfer.cpp
 
-#include "ppbox/rtspd/Common.h"
-#include "ppbox/rtspd/raw/RtpEac3Transfer.h"
+#include "just/rtspd/Common.h"
+#include "just/rtspd/raw/RtpEac3Transfer.h"
 
-#include <ppbox/avbase/stream/SampleBuffers.h>
-using namespace ppbox::avbase;
+#include <just/avbase/stream/SampleBuffers.h>
+using namespace just::avbase;
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -76,4 +76,4 @@ namespace ppbox
         }
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just

@@ -1,14 +1,14 @@
 // RtpTransfer.cpp
 
-#include "ppbox/rtspd/Common.h"
-#include "ppbox/rtspd/RtpTransfer.h"
-#include "ppbox/rtspd/RtcpPacket.h"
+#include "just/rtspd/Common.h"
+#include "just/rtspd/RtpTransfer.h"
+#include "just/rtspd/RtcpPacket.h"
 
-#include <ppbox/avformat/Error.h>
+#include <just/avformat/Error.h>
 
-using namespace ppbox::mux;
+using namespace just::mux;
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -208,7 +208,7 @@ namespace ppbox
             RtcpSDESItem * sdes = (RtcpSDESItem *)(identifier + 1);
             sdes->type = 1;
             sdes->len = 13;
-            strcpy((char *)sdes->data, "PPBOX12345678");
+            strcpy((char *)sdes->data, "JUST12345678");
 
             RtpPacket packet;
             packet.vpxcc = 0;
@@ -226,8 +226,8 @@ namespace ppbox
 
         boost::system::error_code RtpTransferTraits::error_not_found()
         {
-            return ppbox::avformat::error::format_not_support;
+            return just::avformat::error::format_not_support;
         }
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just

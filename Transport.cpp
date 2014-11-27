@@ -1,9 +1,9 @@
 // UdpTransport.cpp
 
-#include "ppbox/rtspd/Common.h"
-#include "ppbox/rtspd/Transport.h"
-#include "ppbox/rtspd/RtpUdpSink.h"
-#include "ppbox/rtspd/RtpTcpSink.h"
+#include "just/rtspd/Common.h"
+#include "just/rtspd/Transport.h"
+#include "just/rtspd/RtpUdpSink.h"
+#include "just/rtspd/RtpTcpSink.h"
 
 #include <framework/system/BytesOrder.h>
 #include <framework/string/Base16.h>
@@ -13,7 +13,7 @@ using namespace framework::string;
 
 using namespace boost::system;
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -82,4 +82,4 @@ namespace ppbox
         }
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just

@@ -1,9 +1,9 @@
 // RtpUdpSink.cpp
 
-#include "ppbox/rtspd/Common.h"
-#include "ppbox/rtspd/RtpUdpSink.h"
+#include "just/rtspd/Common.h"
+#include "just/rtspd/RtpUdpSink.h"
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -48,4 +48,4 @@ namespace ppbox
         }
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just

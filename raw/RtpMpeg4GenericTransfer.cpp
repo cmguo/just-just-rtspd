@@ -1,13 +1,13 @@
 // RtpEsAudioTransfer.cpp
 
-#include "ppbox/rtspd/Common.h"
-#include "ppbox/rtspd/raw/RtpMpeg4GenericTransfer.h"
+#include "just/rtspd/Common.h"
+#include "just/rtspd/raw/RtpMpeg4GenericTransfer.h"
 
 #include <framework/string/Base16.h>
 
 #include <sstream>
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -65,4 +65,4 @@ namespace ppbox
         }
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just

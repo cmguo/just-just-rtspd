@@ -1,13 +1,13 @@
 // RtpTsMuxer.h
 
-#ifndef _PPBOX_RTSPD_RTP_TS_MUXER_H_
-#define _PPBOX_RTSPD_RTP_TS_MUXER_H_
+#ifndef _JUST_RTSPD_RTP_TS_MUXER_H_
+#define _JUST_RTSPD_RTP_TS_MUXER_H_
 
-#include "ppbox/rtspd/RtpMuxer.h"
+#include "just/rtspd/RtpMuxer.h"
 
-#include <ppbox/mux/mp2/TsMuxer.h>
+#include <just/mux/mp2/TsMuxer.h>
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -32,13 +32,13 @@ namespace ppbox
                 Sample & sample);
 
         private:
-            ppbox::mux::TsMuxer ts_mux_;
+            just::mux::TsMuxer ts_mux_;
             RtpTsTransfer * rtp_ts_transfer_;
         };
 
-        PPBOX_REGISTER_MUXER("rtp-ts", RtpTsMuxer);
+        JUST_REGISTER_MUXER("rtp-ts", RtpTsMuxer);
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_RTSPD_RTP_TS_MUXER_H_
+#endif // _JUST_RTSPD_RTP_TS_MUXER_H_

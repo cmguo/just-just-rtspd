@@ -1,13 +1,13 @@
 // RtpStreamDesc.cpp
 
-#include "ppbox/rtspd/Common.h"
-#include "ppbox/rtspd/RtpStreamDesc.h"
+#include "just/rtspd/Common.h"
+#include "just/rtspd/RtpStreamDesc.h"
 
 #include <util/archive/TextIArchive.h>
 #include <util/archive/TextOArchive.h>
 #include <util/archive/ArchiveBuffer.h>
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -31,4 +31,4 @@ namespace ppbox
         }
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just

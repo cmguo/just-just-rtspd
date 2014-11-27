@@ -1,11 +1,11 @@
 // RtpRawMuxer.h
 
-#ifndef _PPBOX_RTSPD_RTP_RAW_MUXER_H_
-#define _PPBOX_RTSPD_RTP_RAW_MUXER_H_
+#ifndef _JUST_RTSPD_RTP_RAW_MUXER_H_
+#define _JUST_RTSPD_RTP_RAW_MUXER_H_
 
-#include "ppbox/rtspd/RtpMuxer.h"
+#include "just/rtspd/RtpMuxer.h"
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -25,9 +25,9 @@ namespace ppbox
                 FilterPipe & pipe);
         };
 
-        PPBOX_REGISTER_MUXER("rtp-raw", RtpRawMuxer);
+        JUST_REGISTER_MUXER("rtp-raw", RtpRawMuxer);
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_RTSPD_RTP_RAW_MUXER_H_
+#endif // _JUST_RTSPD_RTP_RAW_MUXER_H_

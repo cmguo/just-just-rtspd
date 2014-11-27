@@ -1,13 +1,13 @@
 // RtpAsfTransfer.cpp
 
-#include "ppbox/rtspd/Common.h"
-#include "ppbox/rtspd/asf/RtpAsfTransfer.h"
+#include "just/rtspd/Common.h"
+#include "just/rtspd/asf/RtpAsfTransfer.h"
 
-#include <ppbox/mux/asf/AsfTransfer.h>
-using namespace ppbox::mux;
+#include <just/mux/asf/AsfTransfer.h>
+using namespace just::mux;
 
-#include <ppbox/avbase/StreamType.h>
-using namespace ppbox::avbase;
+#include <just/avbase/StreamType.h>
+using namespace just::avbase;
 
 #include <framework/string/Format.h>
 #include <framework/string/Base64.h>
@@ -15,7 +15,7 @@ using namespace ppbox::avbase;
 #include <util/buffers/BuffersCopy.h>
 #include <util/buffers/BuffersSize.h>
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -90,4 +90,4 @@ namespace ppbox
         }
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just

@@ -1,11 +1,11 @@
 // RtpMpegAudioTransfer.h
 
-#ifndef _PPBOX_RTSPD_RTP_MPEG_AUDIO_TRANSFER_H_
-#define _PPBOX_RTSPD_RTP_MPEG_AUDIO_TRANSFER_H_
+#ifndef _JUST_RTSPD_RTP_MPEG_AUDIO_TRANSFER_H_
+#define _JUST_RTSPD_RTP_MPEG_AUDIO_TRANSFER_H_
 
-#include "ppbox/rtspd/RtpTransfer.h"
+#include "just/rtspd/RtpTransfer.h"
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -29,9 +29,9 @@ namespace ppbox
             boost::uint16_t header_[2];
         };
 
-        PPBOX_REGISTER_RTP_TRANSFER("MPA", RtpMpegAudioTransfer);
+        JUST_REGISTER_RTP_TRANSFER("MPA", RtpMpegAudioTransfer);
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_RTSPD_RTP_MPEG_AUDIO_TRANSFER_H_
+#endif // _JUST_RTSPD_RTP_MPEG_AUDIO_TRANSFER_H_

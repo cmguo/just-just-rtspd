@@ -1,26 +1,26 @@
 // RtspdModule.cpp
 
-#include "ppbox/rtspd/Common.h"
-#include "ppbox/rtspd/RtspdModule.h"
-#include "ppbox/rtspd/RtspDispatcher.h"
-#include "ppbox/rtspd/RtspSession.h"
-#include "ppbox/rtspd/RtpMuxerTypes.h"
+#include "just/rtspd/Common.h"
+#include "just/rtspd/RtspdModule.h"
+#include "just/rtspd/RtspDispatcher.h"
+#include "just/rtspd/RtspSession.h"
+#include "just/rtspd/RtpMuxerTypes.h"
 
-#include <ppbox/dispatch/DispatchModule.h>
+#include <just/dispatch/DispatchModule.h>
 
 #include <framework/network/TcpSocket.hpp>
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
 
         RtspdModule::RtspdModule(
             util::daemon::Daemon & daemon)
-            : ppbox::common::CommonModuleBase<RtspdModule>(daemon, "RtspdModule")
+            : just::common::CommonModuleBase<RtspdModule>(daemon, "RtspdModule")
             , framework::network::ServerManager<RtspSession, RtspdModule>(daemon.io_svc())
             , addr_("0.0.0.0:5054+")
-            , dispatch_module_(util::daemon::use_module<ppbox::dispatch::DispatchModule>(get_daemon()))
+            , dispatch_module_(util::daemon::use_module<just::dispatch::DispatchModule>(get_daemon()))
         {
             daemon.config().register_module("RtspdModule")
                 << CONFIG_PARAM_NAME_RDWR("addr",addr_ );
@@ -59,4 +59,4 @@ namespace ppbox
         }
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just

@@ -1,11 +1,11 @@
 // RtpTsTransfer.h
 
-#ifndef _PPBOX_RTSPD_TS_TRANSFER_H_
-#define _PPBOX_RTSPD_TS_TRANSFER_H_
+#ifndef _JUST_RTSPD_TS_TRANSFER_H_
+#define _JUST_RTSPD_TS_TRANSFER_H_
 
-#include "ppbox/rtspd/RtpTransfer.h"
+#include "just/rtspd/RtpTransfer.h"
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -30,6 +30,6 @@ namespace ppbox
         };
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_RTSPD_TS_TRANSFER_H_
+#endif // _JUST_RTSPD_TS_TRANSFER_H_

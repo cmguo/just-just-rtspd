@@ -1,18 +1,18 @@
 // RtpH264Transfer.cpp
 
-#include "ppbox/rtspd/Common.h"
-#include "ppbox/rtspd/raw/RtpH264Transfer.h"
+#include "just/rtspd/Common.h"
+#include "just/rtspd/raw/RtpH264Transfer.h"
 
-#include <ppbox/avcodec/avc/AvcConfigHelper.h>
-#include <ppbox/avcodec/avc/AvcConfig.h>
-#include <ppbox/avcodec/nalu/NaluHelper.h>
-#include <ppbox/avcodec/nalu/NaluBuffer.h>
-using namespace ppbox::avcodec;
+#include <just/avcodec/avc/AvcConfigHelper.h>
+#include <just/avcodec/avc/AvcConfig.h>
+#include <just/avcodec/nalu/NaluHelper.h>
+#include <just/avcodec/nalu/NaluBuffer.h>
+using namespace just::avcodec;
 
 #include <framework/string/Base16.h>
 #include <framework/string/Base64.h>
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -158,4 +158,4 @@ namespace ppbox
         }
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just

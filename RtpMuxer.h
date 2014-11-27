@@ -1,26 +1,26 @@
 // RtpMuxer.h
 
-#ifndef _PPBOX_RTSPD_RTP_MUXER_H_
-#define _PPBOX_RTSPD_RTP_MUXER_H_
+#ifndef _JUST_RTSPD_RTP_MUXER_H_
+#define _JUST_RTSPD_RTP_MUXER_H_
 
-#include "ppbox/rtspd/RtpPacket.h"
+#include "just/rtspd/RtpPacket.h"
 
-#include <ppbox/mux/Muxer.h>
+#include <just/mux/Muxer.h>
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
 
-        using ppbox::mux::StreamInfo;
-        using ppbox::mux::MediaInfo;
-        using ppbox::mux::Sample;
-        using ppbox::mux::FilterPipe;
+        using just::mux::StreamInfo;
+        using just::mux::MediaInfo;
+        using just::mux::Sample;
+        using just::mux::FilterPipe;
 
         class RtpTransfer;
 
         class RtpMuxer
-            : public ppbox::mux::Muxer
+            : public just::mux::Muxer
         {
         public:
             RtpMuxer(
@@ -66,6 +66,6 @@ namespace ppbox
         };
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_RTSPD_RTP_MUXER_H_
+#endif // _JUST_RTSPD_RTP_MUXER_H_

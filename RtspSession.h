@@ -1,14 +1,14 @@
 // RtspSession.h
 
-#ifndef _PPBOX_RTSPD_RTSP_SESSION_H_
-#define _PPBOX_RTSPD_RTSP_SESSION_H_
+#ifndef _JUST_RTSPD_RTSP_SESSION_H_
+#define _JUST_RTSPD_RTSP_SESSION_H_
 
 #include <util/protocol/rtsp/RtspServer.h>
 #include <util/protocol/rtsp/RtspFieldRange.h>
 
 #include <boost/shared_ptr.hpp>
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -63,6 +63,6 @@ namespace ppbox
         };
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_RTSPD_RTSP_SESSION_H_
+#endif // _JUST_RTSPD_RTSP_SESSION_H_

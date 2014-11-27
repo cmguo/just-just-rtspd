@@ -1,13 +1,13 @@
 // RtpAsfMuxer.h
 
-#ifndef _PPBOX_RTSPD_RTP_ASF_MUXER_H_
-#define _PPBOX_RTSPD_RTP_ASF_MUXER_H_
+#ifndef _JUST_RTSPD_RTP_ASF_MUXER_H_
+#define _JUST_RTSPD_RTP_ASF_MUXER_H_
 
-#include "ppbox/rtspd/RtpMuxer.h"
+#include "just/rtspd/RtpMuxer.h"
 
-#include <ppbox/mux/asf/AsfMuxer.h>
+#include <just/mux/asf/AsfMuxer.h>
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -33,13 +33,13 @@ namespace ppbox
                 FilterPipe & pipe);
 
         private:
-            ppbox::mux::AsfMuxer asf_mux_;
+            just::mux::AsfMuxer asf_mux_;
             RtpAsfTransfer * rtp_asf_transfer_;
         };
 
-        PPBOX_REGISTER_MUXER("rtp-asf", RtpAsfMuxer);
+        JUST_REGISTER_MUXER("rtp-asf", RtpAsfMuxer);
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_RTSPD_RTP_ASF_MUXER_H_
+#endif // _JUST_RTSPD_RTP_ASF_MUXER_H_

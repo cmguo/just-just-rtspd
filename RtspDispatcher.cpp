@@ -1,11 +1,11 @@
 // RtspSession.cpp
 
-#include "ppbox/rtspd/Common.h"
-#include "ppbox/rtspd/RtspDispatcher.h"
-#include "ppbox/rtspd/Transport.h"
-#include "ppbox/rtspd/RtpStreamDesc.h"
+#include "just/rtspd/Common.h"
+#include "just/rtspd/RtspDispatcher.h"
+#include "just/rtspd/Transport.h"
+#include "just/rtspd/RtpStreamDesc.h"
 
-using namespace ppbox::dispatch;
+using namespace just::dispatch;
 
 #include <util/protocol/rtsp/RtspFieldRange.h>
 #include <util/protocol/rtsp/RtspError.h>
@@ -22,15 +22,15 @@ using namespace boost::system;
 
 #include <fstream>
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.rtspd.RtspDispatcher", framework::logger::Debug)
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("just.rtspd.RtspDispatcher", framework::logger::Debug)
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
         RtspDispatcher::RtspDispatcher(
-            ppbox::dispatch::DispatcherBase & dispatcher)
-            : ppbox::dispatch::CustomDispatcher(dispatcher)
+            just::dispatch::DispatcherBase & dispatcher)
+            : just::dispatch::CustomDispatcher(dispatcher)
         {
         }
 
@@ -45,7 +45,7 @@ namespace ppbox
             framework::string::Url & url, 
             std::string const & client, 
             boost::asio::streambuf & os, 
-            ppbox::dispatch::response_t  const & resp)
+            just::dispatch::response_t  const & resp)
         {
             if (client.find("Samsung") != std::string::npos
                 && client.find("NexPlayer") != std::string::npos) {
@@ -99,12 +99,12 @@ namespace ppbox
         void RtspDispatcher::async_play(
             util::protocol::rtsp_field::Range & range, 
             std::string & rtp_info, 
-            ppbox::dispatch::response_t const & seek_resp, 
-            ppbox::dispatch::response_t const & resp)
+            just::dispatch::response_t const & seek_resp, 
+            just::dispatch::response_t const & resp)
         {
-            ppbox::dispatch::SeekRange seek_range_;
+            just::dispatch::SeekRange seek_range_;
             util::protocol::rtsp_field::Range::Unit unit = range[0];
-            seek_range_.type = ppbox::dispatch::SeekRange::time;
+            seek_range_.type = just::dispatch::SeekRange::time;
             seek_range_.beg = boost::uint64_t(unit.begin() * 1000);
             if (unit.has_end()) {
                 seek_range_.end = boost::uint64_t(unit.end() * 1000);
@@ -120,11 +120,11 @@ namespace ppbox
 
         void RtspDispatcher::handle_open(
             boost::asio::streambuf & os_sdp, 
-            ppbox::dispatch::response_t const & resp, 
+            just::dispatch::response_t const & resp, 
             boost::system::error_code ec)
         {
 
-            ppbox::avbase::MediaInfo info;
+            just::avbase::MediaInfo info;
             if (!ec) {
                 CustomDispatcher::get_media_info(info, ec);
             }
@@ -139,14 +139,14 @@ namespace ppbox
             //×ésdp
             os << "v=0\r\n";
             os << "o=- 1322720027229880 1 IN IP4 192.168.1.100\r\n";
-            os << "s=Session streamed by PPBOX\r\n";
+            os << "s=Session streamed by JUST\r\n";
             os << "i=" << info.name << "\r\n";
             os << "c=IN IP4 " << "0.0.0.0" << "\r\n";
             os << "t=0 0\r\n";
-            if (info.type == ppbox::avbase::MediaInfo::live) {
+            if (info.type == just::avbase::MediaInfo::live) {
                 os << "a=type:broadcast\r\n";
                 os << "a=range:npt=now-\r\n";
-            } else if (info.duration == ppbox::avbase::invalid_size) {
+            } else if (info.duration == just::avbase::invalid_size) {
                 os << "a=range:npt=0.000-\r\n";
             } else {
                 os << "a=range:npt=0.000-" << (float)info.duration / 1000.0 << "\r\n";
@@ -161,11 +161,11 @@ namespace ppbox
         void RtspDispatcher::handle_seek(
             std::string & rtp_info, 
             util::protocol::rtsp_field::Range & range, 
-            ppbox::dispatch::response_t const & resp, 
+            just::dispatch::response_t const & resp, 
             boost::system::error_code ec)
         {
-            ppbox::avbase::StreamStatus status;
-            std::vector<ppbox::avbase::StreamInfo> streams;
+            just::avbase::StreamStatus status;
+            std::vector<just::avbase::StreamInfo> streams;
 
             if (!ec) {
                 CustomDispatcher::get_stream_status(status, ec);
@@ -204,7 +204,7 @@ namespace ppbox
             float be = (float)status.time_range.beg / 1000.0f;
             float en = (float)status.time_range.end / 1000.0f;
 
-            if (status.time_range.end != ppbox::avbase::invalid_size) {
+            if (status.time_range.end != just::avbase::invalid_size) {
                 en = (float)status.time_range.end / 1000.0f;
                 range[0] = rtsp_field::Range::Unit(be, en); 
             } else {
@@ -215,4 +215,4 @@ namespace ppbox
         }
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just

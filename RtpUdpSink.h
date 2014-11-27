@@ -1,14 +1,14 @@
 // RtpUdpSink.h
 
-#ifndef _PPBOX_RTSPD_RTP_UDP_SINK_H_
-#define _PPBOX_RTSPD_RTP_UDP_SINK_H_
+#ifndef _JUST_RTSPD_RTP_UDP_SINK_H_
+#define _JUST_RTSPD_RTP_UDP_SINK_H_
 
-#include "ppbox/rtspd/RtpSink.h"
+#include "just/rtspd/RtpSink.h"
 
 #include <boost/asio/ip/udp.hpp>
 #include <boost/asio/ip/tcp.hpp>
 
-namespace ppbox
+namespace just
 {
 
     namespace rtspd
@@ -32,6 +32,6 @@ namespace ppbox
         };
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_RTSPD_RTP_UDP_SINK_H_
+#endif // _JUST_RTSPD_RTP_UDP_SINK_H_

@@ -1,12 +1,12 @@
 // RtspdModule.h
 
-#ifndef _PPBOX_RTSPD_RTSPD_MODULE_H_
-#define _PPBOX_RTSPD_RTSPD_MODULE_H_
+#ifndef _JUST_RTSPD_RTSPD_MODULE_H_
+#define _JUST_RTSPD_RTSPD_MODULE_H_
 
 #include <framework/network/ServerManager.h>
 #include <framework/string/Url.h>
 
-namespace ppbox
+namespace just
 {
     namespace dispatch
     {
@@ -20,7 +20,7 @@ namespace ppbox
         class RtspDispatcher;
 
         class RtspdModule 
-            : public ppbox::common::CommonModuleBase<RtspdModule>
+            : public just::common::CommonModuleBase<RtspdModule>
             , public framework::network::ServerManager<RtspSession, RtspdModule>
         {
         public:
@@ -35,7 +35,7 @@ namespace ppbox
             virtual void shutdown();
 
         public:
-            using ppbox::common::CommonModuleBase<RtspdModule>::io_svc;
+            using just::common::CommonModuleBase<RtspdModule>::io_svc;
 
             RtspDispatcher * alloc_dispatcher(
                 framework::string::Url & url, 
@@ -46,10 +46,10 @@ namespace ppbox
 
         private:
             framework::network::NetName addr_;
-            ppbox::dispatch::DispatchModule & dispatch_module_;
+            just::dispatch::DispatchModule & dispatch_module_;
         };
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_RTSPD_RTSPD_MODULE_H_
+#endif // _JUST_RTSPD_RTSPD_MODULE_H_

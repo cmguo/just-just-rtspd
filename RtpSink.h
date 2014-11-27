@@ -1,14 +1,14 @@
 // RtpSink.h
 
-#ifndef _PPBOX_RTSPD_RTP_SINK_H_
-#define _PPBOX_RTSPD_RTP_SINK_H_
+#ifndef _JUST_RTSPD_RTP_SINK_H_
+#define _JUST_RTSPD_RTP_SINK_H_
 
-#include <ppbox/rtspd/RtpPacket.h>
+#include <just/rtspd/RtpPacket.h>
 
 #include <util/stream/Sink.h>
 #include <util/buffers/BuffersSize.h>
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -132,6 +132,6 @@ namespace ppbox
         };
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just
 
 #endif 

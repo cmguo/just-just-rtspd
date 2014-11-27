@@ -1,9 +1,9 @@
 // RtspSession.cpp
 
-#include "ppbox/rtspd/Common.h"
-#include "ppbox/rtspd/RtspSession.h"
-#include "ppbox/rtspd/RtspDispatcher.h"
-#include "ppbox/rtspd/RtspdModule.h"
+#include "just/rtspd/Common.h"
+#include "just/rtspd/RtspSession.h"
+#include "just/rtspd/RtspDispatcher.h"
+#include "just/rtspd/RtspdModule.h"
 
 #include <util/protocol/rtsp/RtspRequest.h>
 #include <util/protocol/rtsp/RtspResponse.h>
@@ -19,9 +19,9 @@ using namespace framework::string;
 
 using namespace boost::system;
 
-FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("ppbox.rtspd.RtspSession", framework::logger::Debug)
+FRAMEWORK_LOGGER_DECLARE_MODULE_LEVEL("just.rtspd.RtspSession", framework::logger::Debug)
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -234,4 +234,4 @@ namespace ppbox
         }
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just

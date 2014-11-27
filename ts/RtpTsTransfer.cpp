@@ -1,15 +1,15 @@
 // RtpTsTransfer.cpp
 
-#include "ppbox/rtspd/Common.h"
-#include "ppbox/rtspd/ts/RtpTsTransfer.h"
-#include "ppbox/rtspd/RtpPacket.h"
+#include "just/rtspd/Common.h"
+#include "just/rtspd/ts/RtpTsTransfer.h"
+#include "just/rtspd/RtpPacket.h"
 
-using namespace ppbox::mux;
+using namespace just::mux;
 
-#include <ppbox/avformat/mp2/TsPacket.h>
-using namespace ppbox::avformat;
+#include <just/avformat/mp2/TsPacket.h>
+using namespace just::avformat;
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -78,4 +78,4 @@ namespace ppbox
         }
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just

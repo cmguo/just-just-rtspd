@@ -1,13 +1,13 @@
 // RtpTsMuxer.cpp
 
-#include "ppbox/rtspd/Common.h"
-#include "ppbox/rtspd/ts/RtpTsMuxer.h"
-#include "ppbox/rtspd/ts/RtpTsTransfer.h"
+#include "just/rtspd/Common.h"
+#include "just/rtspd/ts/RtpTsMuxer.h"
+#include "just/rtspd/ts/RtpTsTransfer.h"
 
-#include <ppbox/mux/filter/MergeFilter.h>
-using namespace ppbox::mux;
+#include <just/mux/filter/MergeFilter.h>
+using namespace just::mux;
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -47,4 +47,4 @@ namespace ppbox
         }
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just

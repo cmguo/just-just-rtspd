@@ -1,24 +1,24 @@
 // RtpRawMuxer.cpp
 
-#include "ppbox/rtspd/Common.h"
-#include "ppbox/rtspd/raw/RtpRawMuxer.h"
+#include "just/rtspd/Common.h"
+#include "just/rtspd/raw/RtpRawMuxer.h"
 
 #include <util/tools/ClassRegister.h>
 
-#include "ppbox/rtspd/raw/RtpMpeg4GenericTransfer.h"
-#include "ppbox/rtspd/raw/RtpMpegAudioTransfer.h"
-#include "ppbox/rtspd/raw/RtpH264Transfer.h"
-#include "ppbox/rtspd/raw/RtpH265Transfer.h"
-#include "ppbox/rtspd/raw/RtpAc3Transfer.h"
-#include "ppbox/rtspd/raw/RtpEac3Transfer.h"
+#include "just/rtspd/raw/RtpMpeg4GenericTransfer.h"
+#include "just/rtspd/raw/RtpMpegAudioTransfer.h"
+#include "just/rtspd/raw/RtpH264Transfer.h"
+#include "just/rtspd/raw/RtpH265Transfer.h"
+#include "just/rtspd/raw/RtpAc3Transfer.h"
+#include "just/rtspd/raw/RtpEac3Transfer.h"
 
-#include <ppbox/avformat/rtp/RtpFormat.h>
-using namespace ppbox::avformat;
+#include <just/avformat/rtp/RtpFormat.h>
+using namespace just::avformat;
 
-#include <ppbox/avcodec/CodecType.h>
-using namespace ppbox::avcodec;
+#include <just/avcodec/CodecType.h>
+using namespace just::avcodec;
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -39,7 +39,7 @@ namespace ppbox
         {
             RtpFormat rtp;
             boost::system::error_code ec;
-            ppbox::avformat::CodecInfo const * codec = rtp.codec_from_codec(info.type, info.sub_type, ec);
+            just::avformat::CodecInfo const * codec = rtp.codec_from_codec(info.type, info.sub_type, ec);
             if (codec) {
                 RtpTransfer * rtp_transfer = RtpTransferFactory::create((char const *)codec->context, ec);
                 if (rtp_transfer) {
@@ -54,4 +54,4 @@ namespace ppbox
         }
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just

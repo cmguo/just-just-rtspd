@@ -1,11 +1,11 @@
 // RtpH265Transfer.h
 
-#ifndef _PPBOX_RTSPD_RTP_H265_TRANSFER_H_
-#define _PPBOX_RTSPD_RTP_H265_TRANSFER_H_
+#ifndef _JUST_RTSPD_RTP_H265_TRANSFER_H_
+#define _JUST_RTSPD_RTP_H265_TRANSFER_H_
 
-#include "ppbox/rtspd/RtpTransfer.h"
+#include "just/rtspd/RtpTransfer.h"
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -39,9 +39,9 @@ namespace ppbox
             bool use_dts_;
         };
 
-        PPBOX_REGISTER_RTP_TRANSFER("H265", RtpH265Transfer);
+        JUST_REGISTER_RTP_TRANSFER("H265", RtpH265Transfer);
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_RTSPD_RTP_H265_TRANSFER_H_
+#endif // _JUST_RTSPD_RTP_H265_TRANSFER_H_

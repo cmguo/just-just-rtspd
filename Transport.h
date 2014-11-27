@@ -1,13 +1,13 @@
 // Transport.h
 
-#ifndef _PPBOX_RTSPD_TRANSPORT_H_
-#define _PPBOX_RTSPD_TRANSPORT_H_
+#ifndef _JUST_RTSPD_TRANSPORT_H_
+#define _JUST_RTSPD_TRANSPORT_H_
 
-#include "ppbox/rtspd/RtpSink.h"
+#include "just/rtspd/RtpSink.h"
 
 #include <boost/asio/ip/tcp.hpp>
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -19,6 +19,6 @@ namespace ppbox
                 boost::system::error_code & ec);
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_RTSPD_TRANSPORT_H_
+#endif // _JUST_RTSPD_TRANSPORT_H_

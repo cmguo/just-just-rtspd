@@ -1,9 +1,9 @@
 // RtpPacket.h
 
-#ifndef _PPBOX_RTSPD_RTP_PACKET_H_
-#define _PPBOX_RTSPD_RTP_PACKET_H_
+#ifndef _JUST_RTSPD_RTP_PACKET_H_
+#define _JUST_RTSPD_RTP_PACKET_H_
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
@@ -37,6 +37,6 @@ namespace ppbox
         };
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just
 
-#endif // _PPBOX_RTSPD_RTP_PACKET_H_
+#endif // _JUST_RTSPD_RTP_PACKET_H_

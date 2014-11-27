@@ -1,28 +1,28 @@
 // RtpTransfer.h
 
-#ifndef _PPBOX_RTSPD_RTP_TRANSFER_H_
-#define _PPBOX_RTSPD_RTP_TRANSFER_H_
+#ifndef _JUST_RTSPD_RTP_TRANSFER_H_
+#define _JUST_RTSPD_RTP_TRANSFER_H_
 
-#include "ppbox/rtspd/RtpPacket.h"
+#include "just/rtspd/RtpPacket.h"
 
-#include <ppbox/mux/Transfer.h>
+#include <just/mux/Transfer.h>
 
 #include <util/tools/ClassFactory.h>
 
 #include <framework/system/BytesOrder.h>
 #include <framework/system/ScaleTransform.h>
 
-namespace ppbox
+namespace just
 {
     namespace rtspd
     {
 
-        using ppbox::mux::StreamInfo;
-        using ppbox::mux::Sample;
-        using ppbox::mux::MuxEvent;
+        using just::mux::StreamInfo;
+        using just::mux::Sample;
+        using just::mux::MuxEvent;
 
         class RtpTransfer
-            : public ppbox::mux::Transfer
+            : public just::mux::Transfer
         {
         public:
             RtpTransfer(
@@ -118,8 +118,8 @@ namespace ppbox
         typedef util::tools::ClassFactory<RtpTransferTraits> RtpTransferFactory;
 
     } // namespace rtspd
-} // namespace ppbox
+} // namespace just
 
-#define PPBOX_REGISTER_RTP_TRANSFER(key, cls) UTIL_REGISTER_CLASS(ppbox::rtspd::RtpTransferFactory, key, cls)
+#define JUST_REGISTER_RTP_TRANSFER(key, cls) UTIL_REGISTER_CLASS(just::rtspd::RtpTransferFactory, key, cls)
 
-#endif // _PPBOX_RTSPD_RTP_TRANSFER_H_
+#endif // _JUST_RTSPD_RTP_TRANSFER_H_
