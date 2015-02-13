@@ -25,6 +25,7 @@ namespace just
                 FilterPipe & pipe);
         };
 
+        JUST_REGISTER_MUXER("rtp", RtpRawMuxer);
         JUST_REGISTER_MUXER("rtp-raw", RtpRawMuxer);
 
     } // namespace rtspd
