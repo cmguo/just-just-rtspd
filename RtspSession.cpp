@@ -212,7 +212,8 @@ namespace just
             --play_count_;
 
             if (closed_ && play_count_ == 0) {
-                stop();
+                boost::system::error_code ec1;
+                stop(ec1);
             } else if (ec && ec != boost::asio::error::operation_aborted) {
                 boost::system::error_code ec1;
                 cancel(ec1);
