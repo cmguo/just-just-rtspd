@@ -102,7 +102,7 @@ namespace just
                             url, 
                             user_agent, 
                             response().data(),
-                            boost::bind(&RtspServer::response, this, _1));
+                            boost::bind(&RtspSession::response, this, _1));
 
                         return;
                     }

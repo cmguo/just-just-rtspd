@@ -30,9 +30,11 @@ namespace just
             virtual ~RtspdModule();
 
         public:
-            virtual boost::system::error_code startup();
+            virtual bool startup(
+                boost::system::error_code & ec);
 
-            virtual void shutdown();
+            virtual bool shutdown(
+                boost::system::error_code & ec);
 
         public:
             using just::common::CommonModuleBase<RtspdModule>::io_svc;

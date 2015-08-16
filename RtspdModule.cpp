@@ -30,17 +30,19 @@ namespace just
         {
         }
 
-        boost::system::error_code RtspdModule::startup()
+        bool RtspdModule::startup(
+            boost::system::error_code & ec)
         {
             srand(time(NULL));
-            boost::system::error_code ec;
             start(addr_,ec);
-            return ec;
+            return !ec;
         }
 
-        void RtspdModule::shutdown()
+        bool RtspdModule::shutdown(
+            boost::system::error_code & ec)
         {
-            stop();
+            stop(ec);
+            return !ec;
         }
 
         RtspDispatcher * RtspdModule::alloc_dispatcher(
