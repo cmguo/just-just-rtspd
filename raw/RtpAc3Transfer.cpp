@@ -19,7 +19,7 @@ namespace just
             : RtpTransfer("RtpAc3", "ac3", 97)
             , mtu_size_(1436)
         {
-            memset(header_, sizeof(header_), 0);
+            memset(header_, 0, sizeof(header_));
             header_[1] = 1; // one frame
             header_[2] = 1;
             header_[4] = 2;
